@@ -3,12 +3,14 @@ package com.anuprakashan.edgelearner.Models;
 public class BookModel {
     String bookId;
     String bookName;
-    String bookDetails;
+    String bookPages;
+    String bookPath;
 
-    public BookModel(String bookId,String bookName, String bookDetails) {
+    public BookModel(String bookId,String bookName, String bookPath,String bookPages) {
         this.bookId=bookId;
         this.bookName=bookName;
-        this.bookDetails =bookDetails;
+        this.bookPath =bookPath;
+        this.bookPages=bookPages;
     }
 
     public String getBookName() {
@@ -19,7 +21,11 @@ public class BookModel {
         return bookId;
     }
 
-    public String getBookDetails() {
-        return bookDetails;
+    public String getBookPath() {
+        return bookPath;
+    }
+
+    public String getBookPages() {
+        return bookPages;
     }
 }

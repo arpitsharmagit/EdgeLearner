@@ -7,11 +7,18 @@ public class BookDetails implements Parcelable {
     private String bookId;
     private String downloadUrl;
     private String bookName;
+    private String pages;
+    private String size;
 
-    public BookDetails(String bookId,String bookName,String downloadUrl){
+    public BookDetails(){
+
+    }
+
+    public BookDetails(String bookId,String bookName,String downloadUrl,String pages){
         this.bookId = bookId;
         this.bookName = bookName;
         this.downloadUrl = downloadUrl;
+        this.pages = pages;
     }
 
     public String getBookId() {
@@ -38,13 +45,31 @@ public class BookDetails implements Parcelable {
         this.bookName = bookName;
     }
 
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getPages() {
+        return pages;
+    }
+
+    public void setPages(String pages) {
+        this.pages = pages;
+    }
+
     public BookDetails(Parcel in){
-        String[] data = new String[3];
+        String[] data = new String[5];
 
         in.readStringArray(data);
         this.bookId = data[0];
         this.bookName = data[1];
         this.downloadUrl = data[2];
+        this.pages = data[3];
+        this.size = data[4];
     }
 
     @Override
@@ -57,7 +82,9 @@ public class BookDetails implements Parcelable {
         dest.writeStringArray(new String[] {
                 this.bookId,
                 this.bookName,
-                this.downloadUrl});
+                this.downloadUrl,
+                this.pages,
+                this.size});
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {

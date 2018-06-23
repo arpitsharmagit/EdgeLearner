@@ -27,16 +27,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Utilities {
     static String TAG ="Utilities";
-    static String ENDPOINT_URL = "https://api.github.com";
-    static Retrofit retrofit;
-    static BookService service;
-    static {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ENDPOINT_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        service = retrofit.create(BookService.class);
-    }
 
     public static Bitmap TextToImageEncode(String Value,int QRcodeWidth) throws WriterException {
         int white = 0xFFFFFFFF;
@@ -100,15 +90,6 @@ public class Utilities {
         }
         return "";
 
-    }
-    public static BookDetails getBookDetails(String bookId){
-        Response<BookDetails> detailsResponse = null;
-        try {
-            detailsResponse = service.getBookDetails(bookId).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return detailsResponse.body();
     }
     public static void unzip(String zipFile,String extractFolder){
         try

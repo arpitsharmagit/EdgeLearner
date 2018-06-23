@@ -3,8 +3,10 @@ package com.anuprakashan.edgelearner;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,18 +25,30 @@ import android.widget.ListView;
 import com.anuprakashan.edgelearner.Models.BookDetails;
 import com.anuprakashan.edgelearner.Models.BookModel;
 import com.anuprakashan.edgelearner.utils.ApplicationHelper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    public static final String LIBRARY = "BOOKS";
     private static final  int HANDLE_PERM = 1;
     File booksFolder,zipFolder;
-    ArrayList<BookModel> dataModels;
+    BookDetails bookDetails;
+    ArrayList<BookModel> books;
     ListView listView;
     private static CustomAdapter adapter;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SharedPreferences mPrefs;
 
     private boolean cameraPermission=false,writePermission=false;
     @Override
@@ -42,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mPrefs = getPreferences(MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,12 +74,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         listView= findViewById(R.id.list);
-        dataModels= new ArrayList<>();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 
     @Override
@@ -80,28 +96,24 @@ public class MainActivity extends AppCompatActivity {
             booksFolder.mkdirs();
         }
 
-        dataModels.clear();
-        for (File file:booksFolder.listFiles()) {
-            if(file.isDirectory()){
-                dataModels.add(new BookModel(file.getName(), file.getName(),String.valueOf(file.listFiles().length)));
-            }
+        books = getLibrary();
+        if(books==null){
+            books = new ArrayList<>();
         }
 
-        adapter= new CustomAdapter(dataModels,getApplicationContext());
+        adapter= new CustomAdapter(books,getApplicationContext());
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                BookModel dataModel= dataModels.get(position);
+                BookModel dataModel= books.get(position);
 
                 Intent intent = new Intent(MainActivity.this, BookReaderActivity.class);
                 intent.putExtra("bookId",dataModel.getBookId());
+                intent.putExtra("bookName",dataModel.getBookName());
+                intent.putExtra("bookPath",dataModel.getBookPath());
                 startActivity(intent);
-
-//                Snackbar.make(view, dataModel.getName()+"\n"+dataModel.getImagePath(), Snackbar.LENGTH_LONG)
-//                        .setAction("No action", null).show();
             }
         });
     }
@@ -131,17 +143,30 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK){
-                String code=data.getStringExtra("code");
-                if(code!=null){
-//                   BookDetails bookDetails = Utilities.getBookDetails(code);
-                    BookDetails bookDetails = new BookDetails(code,"","");
-                    bookDetails.setBookId(code);
-                    bookDetails.setDownloadUrl("https://books-1cab6.firebaseapp.com/api/"+code+".zip");
-
-                    Intent intent = new Intent(MainActivity.this, BookDownloadActivity.class);
-                    //intent.putExtra("url",bookDetails.downloadUrl);
-                    intent.putExtra("book", bookDetails);
-                    startActivityForResult(intent, 2);
+                final String bookCode=data.getStringExtra("code");
+                if(bookCode!=null){
+                    final ProgressDialog dialog = new ProgressDialog(this);
+                    dialog.setMessage("Searching book...");
+                    dialog.setCancelable(false);
+                    dialog.show();
+                    DocumentReference docRef = db.collection("books").document(bookCode);
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            if(task.isSuccessful()){
+                                Log.d(TAG,"Book found "+bookCode);
+                                bookDetails = task.getResult().toObject(BookDetails.class);
+                                startDownloadActivity(bookDetails);
+                            }
+                            else{
+                                Log.d(TAG,"Failed to find Book "+bookCode);
+                                Snackbar.make(listView,"This book is not available",Snackbar.LENGTH_LONG).show();
+                            }
+                        }
+                    });
                 }
             }
             if (resultCode == Activity.RESULT_CANCELED) {
@@ -153,8 +178,11 @@ public class MainActivity extends AppCompatActivity {
                 String result=data.getStringExtra("result");
                 String message =data.getStringExtra("message");
                 if(result.equals("success")){
-                    //Extract Zip File
+                    String bookLocalPath = booksFolder+File.separator+bookDetails.getBookId();
+                    books.add(new BookModel(bookDetails.getBookId(),bookDetails.getBookName(),bookLocalPath,bookDetails.getPages()));
+                    saveLibrary();
                     Log.d(TAG,"Zip file Downloaded and Extracted to "+message);
+
                     Snackbar.make(listView,message,Snackbar.LENGTH_LONG).show();
                 }
             }
@@ -221,5 +249,27 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             ActivityCompat.requestPermissions(this, permissions, HANDLE_PERM);
         }
+    }
+
+    void startDownloadActivity(BookDetails bookDetails){
+        Intent intent = new Intent(MainActivity.this, BookDownloadActivity.class);
+        //intent.putExtra("url",bookDetails.downloadUrl);
+        intent.putExtra("book", bookDetails);
+        startActivityForResult(intent, 2);
+    }
+
+    void saveLibrary(){
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(books);
+        prefsEditor.putString(LIBRARY, json);
+        prefsEditor.commit();
+    }
+    ArrayList<BookModel> getLibrary(){
+        Gson gson = new Gson();
+        String json = mPrefs.getString(LIBRARY, null);
+        Type type = new TypeToken<ArrayList<BookModel>>() {}.getType();
+        books = new Gson().fromJson(json, type);
+        return books;
     }
 }

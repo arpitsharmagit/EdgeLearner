@@ -25,6 +25,8 @@ public class BookReaderActivity extends AppCompatActivity {
     WebView myWebView;
     File bookFolder;
     String bookId;
+    String bookName;
+    String bookPath;
 
     ImageButton back,forward,list;
 
@@ -76,10 +78,12 @@ public class BookReaderActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         bookId = intent.getStringExtra("bookId");
+        bookName = intent.getStringExtra("bookName");
+        bookPath = intent.getStringExtra("bookPath");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Book - "+bookId);
+        getSupportActionBar().setTitle("Book - "+bookName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String bookIndexPage =bookFolder+File.separator+bookId;
@@ -115,7 +119,6 @@ public class BookReaderActivity extends AppCompatActivity {
                         finish();
                     return true;
             }
-
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -126,7 +129,6 @@ public class BookReaderActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -141,8 +143,6 @@ public class BookReaderActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Page Loaded",
                             Toast.LENGTH_SHORT).show();
                 }
-
-
         }
     }
 }

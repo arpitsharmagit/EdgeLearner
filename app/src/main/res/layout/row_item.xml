@@ -35,4 +35,13 @@
             android:text="Pages 28"
             android:textColor="@color/colorPrimaryDark" />
     </LinearLayout>
+    <!--<ImageButton-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/btnDelete"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_width="26dp"-->
+        <!--android:layout_height="26dp"-->
+        <!--android:src="@drawable/ic_delete_"-->
+        <!--android:background="@android:color/transparent"-->
+        <!--android:layout_weight=".10" />-->
 </LinearLayout>

@@ -8,11 +8,13 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anuprakashan.edgelearner.Models.BookModel;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnClickListener{
@@ -25,6 +27,7 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
         TextView txtName;
         TextView txtPages;
         ImageView info;
+//        ImageButton btndelete;
     }
 
     public CustomAdapter(ArrayList<BookModel> data, Context context) {
@@ -39,13 +42,16 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
 
         int position=(Integer) v.getTag();
         Object object= getItem(position);
-        BookModel BookModel=(BookModel)object;
+        BookModel bookModel=(BookModel)object;
 
         switch (v.getId())
         {
             case R.id.item_info:
-                Snackbar.make(v, "Book Details" +BookModel.getBookName(), Snackbar.LENGTH_LONG)
-                        .setAction("No action", null).show();
+                File file = new File(bookModel.getBookPath());
+                if(file.exists()){
+                    file.delete();
+                    Snackbar.make(v, "Book Deleted " +bookModel.getBookName(), Snackbar.LENGTH_LONG).show();
+                }
                 break;
         }
     }
@@ -54,10 +60,8 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Get the data item for this position
         BookModel BookModel = getItem(position);
-        // Check if an existing view is being reused, otherwise inflate the view
-        ViewHolder viewHolder; // view lookup cache stored in tag
+        ViewHolder viewHolder;
 
         final View result;
 
@@ -69,6 +73,7 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
             viewHolder.txtName = (TextView) convertView.findViewById(R.id.name);
             viewHolder.txtPages = (TextView) convertView.findViewById(R.id.pages);
             viewHolder.info =(ImageView) convertView.findViewById(R.id.default_book);
+//            viewHolder.btndelete =(ImageButton) convertView.findViewById(R.id.btnDelete);
 
             result=convertView;
 
@@ -83,10 +88,10 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
         lastPosition = position;
 
         viewHolder.txtName.setText(BookModel.getBookName());
-        viewHolder.txtPages.setText("Total Pages: "+BookModel.getBookDetails());
-        viewHolder.info.setOnClickListener(this);
+        viewHolder.txtPages.setText("Total Pages: "+BookModel.getBookPages());
+//        viewHolder.btndelete.setOnClickListener(this);
+//        viewHolder.btndelete.setTag(position);
         viewHolder.info.setTag(position);
-        // Return the completed view to render on screen
         return convertView;
     }
 }

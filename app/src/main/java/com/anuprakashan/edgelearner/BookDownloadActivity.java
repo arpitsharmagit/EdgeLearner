@@ -34,7 +34,7 @@ public class BookDownloadActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
     ImageButton btnCancel;
-    TextView txtStatus;
+    TextView txtStatus,txtBookName,txtBookSize;
     DownloaderTask downloadTask;
 
     int count;
@@ -52,7 +52,8 @@ public class BookDownloadActivity extends AppCompatActivity {
         }
 
         txtStatus = findViewById(R.id.txtStatus);
-
+        txtBookName =findViewById(R.id.txt_bookname);
+        txtBookSize = findViewById(R.id.txt_booksize);
         progressBar = findViewById(R.id.progressBarDownload);
         btnCancel = findViewById(R.id.btnCancel);
 
@@ -68,6 +69,8 @@ public class BookDownloadActivity extends AppCompatActivity {
         bookDetails = data.getParcelable("book");
 
         if(bookDetails.getBookId()!=null && bookDetails.getDownloadUrl() !=null){
+            txtBookSize.setText("Download Size: "+bookDetails.getSize());
+            txtBookName.setText(bookDetails.getBookName());
             File file = new File(ApplicationHelper.zipFolder,bookDetails.getBookId()+".zip") ;
             if(file.exists()){
                 file.delete();
