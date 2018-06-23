@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ScannerActivity">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
 
     <fragment
+        android:layout_above="@id/bottomBar"
+        android:layout_below="@+id/appBar"
         android:id="@+id/barcode_scanner"
         android:name="info.androidhive.barcode.BarcodeReader"
         android:layout_width="match_parent"
@@ -20,7 +37,25 @@
         app:line_color="#7323DC"
         app:line_speed="6"
         app:line_width="4"
-        app:square_height="200"
-        app:square_width="200"/>
+        app:square_height="250"
+        app:square_width="300"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:padding="5dp"
+        android:id="@+id/bottomBar"
+        android:background="@color/colorPrimary">
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_horizontal"
+            android:text="Copyright © Anu Prakashan Mandir"
+            android:textColor="@color/colorAccent"
+            android:textSize="14dp" />
+    </RelativeLayout>
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>
