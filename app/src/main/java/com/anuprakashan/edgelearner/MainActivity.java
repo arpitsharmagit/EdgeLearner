@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     BookDetails bookDetails;
     ArrayList<BookModel> books;
     ListView listView;
-    private static CustomAdapter adapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences mPrefs;
 
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             books = new ArrayList<>();
         }
 
-        adapter= new CustomAdapter(books,getApplicationContext());
+        CustomAdapter adapter= new CustomAdapter(books,getApplicationContext());
 
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -128,11 +127,21 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
-            startActivityForResult(intent,1);
-            return true;
+        switch(id){
+            case R.id.action_settings:
+                Intent intentScan = new Intent(MainActivity.this, ScannerActivity.class);
+                startActivityForResult(intentScan,1);
+                return true;
+            case R.id.action_contactus:
+                Intent intentContactUs = new Intent(MainActivity.this, ContactUsActivity.class);
+                startActivity(intentContactUs);
+                return true;
+            case R.id.action_aboutus:
+                Intent intentAbout = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(intentAbout);
+                return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -168,9 +177,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
             }
         }
         if (requestCode == 2) {
@@ -231,7 +237,6 @@ public class MainActivity extends AppCompatActivity {
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)!=
                 PackageManager.PERMISSION_GRANTED) {
             requestPermissions();
-            return;
         }
         else{
             cameraPermission=true;
@@ -266,7 +271,6 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.commit();
     }
     ArrayList<BookModel> getLibrary(){
-        Gson gson = new Gson();
         String json = mPrefs.getString(LIBRARY, null);
         Type type = new TypeToken<ArrayList<BookModel>>() {}.getType();
         books = new Gson().fromJson(json, type);

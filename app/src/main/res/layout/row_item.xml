@@ -4,6 +4,7 @@
     android:orientation="horizontal"
     android:padding="16dp"
     android:background="@android:color/white"
+    android:descendantFocusability="blocksDescendants"
     android:id="@+id/item_info">
     <ImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"

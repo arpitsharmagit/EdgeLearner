@@ -8,4 +8,18 @@
         android:title="Add Book"
         android:icon="@drawable/ic_scan"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_contactus"
+        android:orderInCategory="102"
+        android:title="Contact Us"
+        android:icon="@drawable/ic_contactus"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_aboutus"
+        android:orderInCategory="103"
+        android:title="About Us"
+        android:icon="@drawable/ic_aboutus"
+        app:showAsAction="always" />
 </menu>

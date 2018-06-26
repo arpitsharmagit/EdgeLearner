@@ -27,7 +27,7 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
         TextView txtName;
         TextView txtPages;
         ImageView info;
-//        ImageButton btndelete;
+        ImageButton btndelete;
     }
 
     public CustomAdapter(ArrayList<BookModel> data, Context context) {

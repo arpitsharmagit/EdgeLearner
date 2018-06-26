@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "5490793951",
+    "firebase_url": "https://books-1cab6.firebaseio.com",
+    "project_id": "books-1cab6",
+    "storage_bucket": "books-1cab6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5490793951:android:b6a7c6fdbf0e2a5a",
+        "android_client_info": {
+          "package_name": "com.anuprakashan.edgelearner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "5490793951-f23tc5517ei21j2f9ajeallg3d21cbic.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anuprakashan.edgelearner",
+            "certificate_hash": "c0a80c0dbf2be9e83bfe32397165039cb60f0617"
+          }
+        },
+        {
+          "client_id": "5490793951-1bvc9q85troaq84ulub9ma0mdgbp3lt1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoiF7ALSHOZS_rTIObiFC_3Zq746KaoN8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "5490793951-1bvc9q85troaq84ulub9ma0mdgbp3lt1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
