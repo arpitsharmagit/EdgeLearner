@@ -41,15 +41,15 @@
             android:id="@+id/banner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_appicon_round"/>
+            android:src="@mipmap/ic_app2icon_round"/>
         <TextView
             android:layout_toRightOf="@+id/banner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center_horizontal"
-            android:text="Copyright © Anu Prakashan Mandir"
-            android:textColor="@color/colorAccent"
+            android:text="Copyright © Learning Solutions"
+            android:textColor="@color/colorWhite"
             android:textSize="14dp" />
     </RelativeLayout>
 

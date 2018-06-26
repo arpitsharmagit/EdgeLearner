@@ -23,11 +23,11 @@ public class AboutActivity extends AppCompatActivity {
         TextView txtAbout = findViewById(R.id.txtAbout);
         txtAbout.setText(
                 "\n" +
-                "   Since child is the father of the nation, we owe our love to children. It is our earnest endeavour to provide best quality books to these little birds who have just begun to fluff their wings for their flight into the infinite. We, at Anu Prakashan Mandir, cover the complete process of teaching-learning and aim to import knowledge in way which will arouse the curiosity of the young energetic minds. Our books give students the opportunity to understand and enjoy their learning. They help teachers to teach in a simple way.\n" +
+                "   Since child is the father of the nation, we owe our love to children. It is our earnest endeavour to provide best quality books to these little birds who have just begun to fluff their wings for their flight into the infinite. We, at Learning Solutions, cover the complete process of teaching-learning and aim to import knowledge in way which will arouse the curiosity of the young energetic minds. Our books give students the opportunity to understand and enjoy their learning. They help teachers to teach in a simple way.\n" +
                 "\n" +
                 "\n" +
                 "\n" +
-                "   With over 400 books written and designed as per NCERT, CBSE and ICSE syllabi Anu Prakashan Mandir is one of India’s  quality school text book publishers.\n" +
+                "   With over 400 books written and designed as per NCERT, CBSE and ICSE syllabi Learning Solutions is one of India’s  quality school text book publishers.\n" +
                 "\n" +
                 "\n" +
                 "\n" +

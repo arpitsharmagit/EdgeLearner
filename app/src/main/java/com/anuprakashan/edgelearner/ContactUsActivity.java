@@ -23,7 +23,7 @@ public class ContactUsActivity extends AppCompatActivity {
         TextView txtTelephone = findViewById(R.id.txtTelephone);
         TextView txtEmail = findViewById(R.id.txtEmail);
 
-        txtAddress.setText("Anu Prakashan Mandir\n" +
+        txtAddress.setText("Learning Solutions\n" +
                 "807/2, Sant Vihar, Old Vidya Prakashan Mandir\n" +
                 "Office,\n" +
                 "Transport Nagar, Meerut City.\n");

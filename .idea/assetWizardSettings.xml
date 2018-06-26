@@ -56,11 +56,11 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="eeeeee" />
-                                      <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../../../../BookReader/icon.png" />
-                                      <entry key="foregroundLayerName" value="ic_launcher_forground" />
-                                      <entry key="outputName" value="ic_appicon" />
+                                      <entry key="backgroundColor" value="ffffff" />
+                                      <entry key="backgroundLayerName" value="ic_launcher_background1" />
+                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../../../../BookReader/android clint 3/logo.png" />
+                                      <entry key="foregroundLayerName" value="ic_launcher_forground1" />
+                                      <entry key="outputName" value="ic_app2icon" />
                                       <entry key="webIconShape" value="CIRCLE" />
                                     </map>
                                   </option>

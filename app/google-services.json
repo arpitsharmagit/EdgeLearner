@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:5490793951:android:b6a7c6fdbf0e2a5a",
         "android_client_info": {
-          "package_name": "com.anuprakashan.edgelearner"
+          "package_name": "com.learningsolutions.edgelearner"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "5490793951-f23tc5517ei21j2f9ajeallg3d21cbic.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.anuprakashan.edgelearner",
+            "package_name": "com.learningsolutions.edgelearner",
             "certificate_hash": "c0a80c0dbf2be9e83bfe32397165039cb60f0617"
           }
         },
