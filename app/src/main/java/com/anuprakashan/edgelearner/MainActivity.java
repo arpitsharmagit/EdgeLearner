@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BookModel dataModel= books.get(position);
 
-                Intent intent = new Intent(MainActivity.this, BookReaderActivity.class);
+                Intent intent = new Intent(MainActivity.this, BookViewActivity.class);
                 intent.putExtra("bookId",dataModel.getBookId());
                 intent.putExtra("bookName",dataModel.getBookName());
                 intent.putExtra("bookPath",dataModel.getBookPath());

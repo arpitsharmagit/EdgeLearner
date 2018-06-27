@@ -40,6 +40,8 @@
         <activity android:name=".ChaptersActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ContactUsActivity" />
+        <activity android:name=".DropTestActivity" />
+        <activity android:name=".BookViewActivity"></activity>
     </application>
 
 </manifest>
