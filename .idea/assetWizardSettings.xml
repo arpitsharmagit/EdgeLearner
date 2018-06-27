@@ -61,6 +61,7 @@
                                       <entry key="foregroundImage" value="$PROJECT_DIR$/../../../../BookReader/icon.png" />
                                       <entry key="foregroundLayerName" value="ic_launcher_forground" />
                                       <entry key="outputName" value="ic_appicon" />
+                                      <entry key="showGrid" value="true" />
                                       <entry key="webIconShape" value="CIRCLE" />
                                     </map>
                                   </option>
@@ -98,12 +99,21 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_library" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="cropped" value="true" />
+                                      <entry key="iconShape" value="CIRCLE" />
+                                      <entry key="imageAsset" value="$PROJECT_DIR$/../../../../BookReader/icon.png" />
+                                      <entry key="outputName" value="ic_iconleagacy" />
                                     </map>
                                   </option>
                                 </PersistentState>
                               </value>
                             </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
                           </map>
                         </option>
                       </PersistentState>
