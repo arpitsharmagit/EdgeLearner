@@ -1,0 +1,33 @@
+{
+  "Book":{
+    "id":"new-001",
+    "name":"My New Book",
+    "path":"mybook",
+    "audio":"backgroundSoundURL.mp3",
+    "chapterCount":5,
+    "chapters":[{
+        "id":1,
+        "title":"Chapter 1",
+        "pageCount":1,
+        "pages":[{
+          "id":1,
+          "path":"1.jpg",
+          "audio":"speach.mp3",
+          "activity":[{
+            "title":"Tick the correct answer.",
+            "type": "mcq",
+            "question":"How many big rats are there?",
+            "options":["Three","Four","Five"],
+            "answer":"Four"
+          },
+          {
+            "title":"Tick the correct answer.",
+            "type": "mcq",
+            "question":"How many bees are there?",
+            "options":["Nine","Eleven","Ten"],
+            "answer":"Ten"
+          }]
+        }]
+      }]
+  }
+}
