@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -153,6 +154,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK){
                 final String bookCode=data.getStringExtra("code");
+                if(URLUtil.isValidUrl(bookCode)){
+                    Snackbar.make(listView,"QR code is not valid. ",Snackbar.LENGTH_LONG).show();
+                    return;
+                }
                 if(bookCode!=null){
                     final ProgressDialog dialog = new ProgressDialog(this);
                     dialog.setMessage("Searching book...");
