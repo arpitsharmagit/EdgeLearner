@@ -39,9 +39,10 @@
         android:background="@color/colorPrimary">
         <ImageView
             android:id="@+id/banner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_logo_round"/>
+            android:padding="5dp"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/logo"/>
         <TextView
             android:layout_toRightOf="@+id/banner"
             android:layout_width="match_parent"
