@@ -41,15 +41,15 @@
             android:id="@+id/banner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_app2icon_round"/>
+            android:src="@mipmap/ic_logo_round"/>
         <TextView
             android:layout_toRightOf="@+id/banner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center_horizontal"
-            android:text="Copyright © Learning Solutions"
-            android:textColor="@color/colorWhite"
+            android:text="@string/copyright"
+            android:textColor="@color/colorAccent"
             android:textSize="14dp" />
     </RelativeLayout>
 

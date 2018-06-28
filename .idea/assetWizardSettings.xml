@@ -18,6 +18,17 @@
                                 <PersistentState>
                                   <option name="children">
                                     <map>
+                                      <entry key="backgroundImage">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="scalingPercent" value="40" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                       <entry key="foregroundClipArt">
                                         <value>
                                           <PersistentState>
@@ -45,7 +56,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="64" />
+                                                <entry key="scalingPercent" value="50" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -56,11 +67,12 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="ffffff" />
-                                      <entry key="backgroundLayerName" value="ic_launcher_background1" />
-                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../../../../BookReader/android clint 3/logo.png" />
-                                      <entry key="foregroundLayerName" value="ic_launcher_forground1" />
-                                      <entry key="outputName" value="ic_app2icon" />
+                                      <entry key="backgroundColor" value="cdcb95" />
+                                      <entry key="backgroundImage" value="$PROJECT_DIR$/../../../../BookReader/client1/icon.png" />
+                                      <entry key="backgroundLayerName" value="ic_logo_bkg" />
+                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../../../../BookReader/client1/icon.png" />
+                                      <entry key="foregroundLayerName" value="ic_logo_fwd" />
+                                      <entry key="outputName" value="ic_logo" />
                                       <entry key="webIconShape" value="CIRCLE" />
                                     </map>
                                   </option>
@@ -98,7 +110,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_library" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="$PROJECT_DIR$/../../../../BookReader/client1/icon.png" />
+                                      <entry key="outputName" value="ic_appicon" />
                                     </map>
                                   </option>
                                 </PersistentState>

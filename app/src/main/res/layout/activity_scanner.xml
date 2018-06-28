@@ -53,8 +53,8 @@
             android:layout_centerInParent="true"
             android:layout_marginBottom="10dp"
             android:gravity="center_horizontal"
-            android:text="Copyright © Learning Solutions"
-            android:textColor="@color/colorWhite"
+            android:text="@string/copyright"
+            android:textColor="@color/colorAccent"
             android:textSize="14dp" />
     </RelativeLayout>
 
