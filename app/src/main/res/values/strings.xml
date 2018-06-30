@@ -2,5 +2,5 @@
     <string name="app_name">Learn Forward</string>
     <string name="action_settings">Settings</string>
     <string name="action_generator">QR Generate</string>
-    <string name="copyright">Copyright © Learn Forward</string>
+    <string name="copy">Copyright © Learn Forward</string>
 </resources>

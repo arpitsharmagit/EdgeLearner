@@ -15,7 +15,7 @@
         android:orderInCategory="102"
         android:title="Contact Us"
         android:icon="@drawable/ic_contactus"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 
     <item
         android:visible="false"

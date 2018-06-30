@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 
 public class BookDownloadActivity extends AppCompatActivity {
 
@@ -41,6 +42,7 @@ public class BookDownloadActivity extends AppCompatActivity {
     BookDetails bookDetails;
 
     private static final String SUCCESS = "success";
+    private static final String FAILURE = "failure";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +71,7 @@ public class BookDownloadActivity extends AppCompatActivity {
         bookDetails = data.getParcelable("book");
 
         if(bookDetails.getBookId()!=null && bookDetails.getDownloadUrl() !=null){
-            txtBookSize.setText("Download Size: "+bookDetails.getSize());
+            txtBookSize.setText("Download Size: calculating...");
             txtBookName.setText(bookDetails.getBookName());
             File file = new File(ApplicationHelper.zipFolder,bookDetails.getBookId()+".zip") ;
             if(file.exists()){
@@ -80,7 +82,7 @@ public class BookDownloadActivity extends AppCompatActivity {
             }
         }
         else{
-            sendResult(SUCCESS,"Download url is Empty.");
+            sendResult(FAILURE,"Download url is Empty.");
         }
     }
 
@@ -121,9 +123,30 @@ public class BookDownloadActivity extends AppCompatActivity {
         private Context context;
         private PowerManager.WakeLock mWakeLock;
         File file;
+        String fileSize;
 
         public DownloaderTask(Context context) {
             this.context = context;
+        }
+
+        public String getStringSizeLengthFile(long size) {
+
+            DecimalFormat df = new DecimalFormat("0.00");
+
+            float sizeKb = 1024.0f;
+            float sizeMo = sizeKb * sizeKb;
+            float sizeGo = sizeMo * sizeKb;
+            float sizeTerra = sizeGo * sizeKb;
+
+
+            if(size < sizeMo)
+                return df.format(size / sizeKb)+ " Kb";
+            else if(size < sizeGo)
+                return df.format(size / sizeMo) + " Mb";
+            else if(size < sizeTerra)
+                return df.format(size / sizeGo) + " Gb";
+
+            return "";
         }
 
         @Override
@@ -151,6 +174,8 @@ public class BookDownloadActivity extends AppCompatActivity {
                 }
 
                 int fileLength = connection.getContentLength();
+
+                fileSize = getStringSizeLengthFile(fileLength);
 
                 input = connection.getInputStream();
                 output = new FileOutputStream(file);
@@ -204,6 +229,7 @@ public class BookDownloadActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {
             super.onProgressUpdate(progress);
             progressBar.setProgress(progress[0]);
+            txtBookSize.setText("Download Size: "+fileSize);
             txtStatus.setText("Downloading..."+ progress[0]+"%");
         }
 
@@ -220,7 +246,7 @@ public class BookDownloadActivity extends AppCompatActivity {
                     extractFile(result);
                 }
                 else{
-                    sendResult(SUCCESS,result);
+                    sendResult(FAILURE,result);
                 }
             }
         }
@@ -230,7 +256,7 @@ public class BookDownloadActivity extends AppCompatActivity {
             //anything else you want to do after the task was cancelled, maybe delete the incomplete download.
             if(file!=null && file.exists())
                 file.delete();
-            sendResult(SUCCESS,result);
+            sendResult(FAILURE,result);
         }
     }
 }

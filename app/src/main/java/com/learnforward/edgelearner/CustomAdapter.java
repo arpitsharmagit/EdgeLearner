@@ -1,7 +1,9 @@
 package com.learnforward.edgelearner;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,8 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
 
     private ArrayList<BookModel> dataSet;
     Context mContext;
+    AlertDialog.Builder alert;
+    BookModel bookModelToDelete;
 
     // View lookup cache
     private static class ViewHolder {
@@ -34,24 +38,39 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
         super(context, R.layout.row_item, data);
         this.dataSet = data;
         this.mContext=context;
+        alert = new AlertDialog.Builder(this.mContext);
 
     }
 
     @Override
-    public void onClick(View v) {
-
+    public void onClick(final View v) {
         int position=(Integer) v.getTag();
         Object object= getItem(position);
-        BookModel bookModel=(BookModel)object;
+        bookModelToDelete=(BookModel)object;
+
+        alert.setTitle("Delete Book "+ bookModelToDelete.getBookName());
+        alert.setMessage("Are you sure you want to delete?");
+
+        alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                File file = new File(bookModelToDelete.getBookPath());
+                if(file.exists()){
+                    file.delete();
+                    Snackbar.make(v, "Book Deleted " +bookModelToDelete.getBookName(), Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
+        alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // close dialog
+                dialog.cancel();
+            }
+        });
 
         switch (v.getId())
         {
             case R.id.item_info:
-                File file = new File(bookModel.getBookPath());
-                if(file.exists()){
-                    file.delete();
-                    Snackbar.make(v, "Book Deleted " +bookModel.getBookName(), Snackbar.LENGTH_LONG).show();
-                }
+                alert.show();
                 break;
         }
     }
@@ -89,8 +108,8 @@ public class CustomAdapter extends ArrayAdapter<BookModel> implements View.OnCli
 
         viewHolder.txtName.setText(BookModel.getBookName());
         viewHolder.txtPages.setText("Total Pages: "+BookModel.getBookPages());
-//        viewHolder.btndelete.setOnClickListener(this);
-//        viewHolder.btndelete.setTag(position);
+        //viewHolder.btndelete.setOnClickListener(this);
+        //viewHolder.btndelete.setTag(position);
         viewHolder.info.setTag(position);
         return convertView;
     }

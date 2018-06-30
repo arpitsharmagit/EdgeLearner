@@ -5,31 +5,85 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/colorGrey"
+    android:background="@color/colorPrimary"
     tools:context=".BookViewActivity">
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="90dp"
         android:orientation="horizontal">
-        <ImageView
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:padding="5dp"
+            android:layout_margin="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:src="@drawable/ic_delete_"/>
-    </LinearLayout>
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_keyboard_back"/>
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:gravity="right" >
+            <ImageButton
+                android:id="@+id/btn_index"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_list"/>
+            <ImageButton
+                android:id="@+id/btn_bookmark"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_bookmark_done"/>
+            <ImageButton
+                android:id="@+id/btn_bookmark_list"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_collections_bookmark"/>
+            <ImageButton
+                android:id="@+id/btn_text"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_text_fields"/>
+            <ImageButton
+                android:id="@+id/btn_goto"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_goto"/>
+
+        </LinearLayout>
+    </RelativeLayout>
     <FrameLayout
         android:id="@+id/content"
         android:layout_weight=".7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite">
-        <ImageView
-            android:id="@+id/imageView"
+        <ImageSwitcher
+            android:id="@+id/imageSwitch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center">
+
+
+        </ImageSwitcher>
         <ImageView
-            android:id="@+id/sound"
+            android:id="@+id/btnAudio"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="5dp"
             android:layout_gravity="top"
@@ -37,6 +91,30 @@
             android:layout_height="32dp"
             android:visibility="gone"
             android:src="@drawable/sound"/>
+        <LinearLayout
+            android:id="@+id/play_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="60dp"
+            android:visibility="gone">
+            <ImageButton
+                android:id="@+id/btn_play"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_play"
+                android:background="@color/colorAccent"/>
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:progressTint="@color/colorWhite"
+                android:progressBackgroundTint="@color/colorPrimary"
+                android:progress="0"
+                android:background="@color/colorAccent"
+                />
+        </LinearLayout>
+
     </FrameLayout>
     <LinearLayout
         android:id="@+id/pageBar"
@@ -62,10 +140,55 @@
             android:textStyle="bold"
             android:textColor="@color/colorWhite"/>
     </LinearLayout>
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="90dp"
         android:orientation="horizontal">
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true">
+            <ImageButton
+                android:id="@+id/btn_color"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_color"/>
+            <ImageButton
+                android:id="@+id/btn_linesize"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_line_weight"/>
+            <ImageButton
+                android:id="@+id/btn_pen"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_brush"/>
+            <ImageButton
+                android:id="@+id/btn_rectangle"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_rectangle"/>
+            <ImageButton
+                android:id="@+id/btn_remove"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_delete"/>
+        </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

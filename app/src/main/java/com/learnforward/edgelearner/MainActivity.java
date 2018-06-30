@@ -3,6 +3,7 @@ package com.learnforward.edgelearner;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,8 +22,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.learnforward.edgelearner.Models.Book;
 import com.learnforward.edgelearner.Models.BookDetails;
 import com.learnforward.edgelearner.Models.BookModel;
 import com.learnforward.edgelearner.utils.ApplicationHelper;
@@ -34,6 +38,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -48,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences mPrefs;
+    CustomAdapter adapter;
+
+    ArrayList<String> library; //save downloaded book ids
 
     private boolean cameraPermission=false,writePermission=false;
     @Override
@@ -57,18 +66,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mPrefs = getPreferences(MODE_PRIVATE);
+        library = getLibrary();
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("  My Library");
-        getSupportActionBar().setLogo(R.drawable.ic_library);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        LinearLayout scan =findViewById(R.id.scan);
+        scan.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ScannerActivity.class);
-                startActivityForResult(intent,1);
+            public void onClick(View v) {
+                Intent intentScan = new Intent(MainActivity.this, ScannerActivity.class);
+                startActivityForResult(intentScan,1);
             }
         });
 
@@ -78,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
     }
 
     @Override
@@ -95,105 +104,107 @@ public class MainActivity extends AppCompatActivity {
             booksFolder.mkdirs();
         }
 
-        books = getLibrary();
-        if(books==null){
-            books = new ArrayList<>();
-        }
-
-        CustomAdapter adapter= new CustomAdapter(books,getApplicationContext());
-
+        loadBooks();
+        adapter = new CustomAdapter(books,getApplicationContext());
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BookModel dataModel= books.get(position);
-
                 Intent intent = new Intent(MainActivity.this, BookViewActivity.class);
                 intent.putExtra("bookId",dataModel.getBookId());
-                intent.putExtra("bookName",dataModel.getBookName());
-                intent.putExtra("bookPath",dataModel.getBookPath());
                 startActivity(intent);
             }
         });
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        switch(id){
-            case R.id.action_settings:
-                Intent intentScan = new Intent(MainActivity.this, ScannerActivity.class);
-                startActivityForResult(intentScan,1);
-                return true;
-            case R.id.action_contactus:
-                Intent intentContactUs = new Intent(MainActivity.this, ContactUsActivity.class);
-                startActivity(intentContactUs);
-                return true;
-            case R.id.action_aboutus:
-                Intent intentAbout = new Intent(MainActivity.this, AboutActivity.class);
-                startActivity(intentAbout);
-                return true;
-        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            if(resultCode == Activity.RESULT_OK){
-                final String bookCode=data.getStringExtra("code");
-                if(bookCode!=null){
-                    final ProgressDialog dialog = new ProgressDialog(this);
-                    dialog.setMessage("Searching book...");
-                    dialog.setCancelable(false);
-                    dialog.show();
-                    DocumentReference docRef = db.collection("books").document(bookCode);
-                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (dialog.isShowing()) {
-                                dialog.dismiss();
-                            }
-                            if(task.isSuccessful()){
-                                Log.d(TAG,"Book found "+bookCode);
-                                bookDetails = task.getResult().toObject(BookDetails.class);
-                                startDownloadActivity(bookDetails);
-                            }
-                            else{
-                                Log.d(TAG,"Failed to find Book "+bookCode);
-                                Snackbar.make(listView,"This book is not available",Snackbar.LENGTH_LONG).show();
-                            }
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            final String bookCode = data.getStringExtra("code");
+            if (bookCode != null) {
+                final ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setMessage("Searching book...");
+                dialog.setCancelable(false);
+                dialog.show();
+                DocumentReference docRef = db.collection("books").document(bookCode);
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (dialog.isShowing()) {
+                            dialog.dismiss();
                         }
-                    });
-                }
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "Book found " + bookCode);
+                            bookDetails = task.getResult().toObject(BookDetails.class);
+                            startDownloadActivity(bookDetails);
+                        } else {
+                            Log.d(TAG, "Failed to find Book " + bookCode);
+                            Snackbar.make(listView, "This book is not available", Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         }
-        if (requestCode == 2) {
-            if(resultCode == Activity.RESULT_OK){
-                String result=data.getStringExtra("result");
-                String message =data.getStringExtra("message");
-                if(result.equals("success")){
-                    String bookLocalPath = booksFolder+File.separator+bookDetails.getBookId();
-                    books.add(new BookModel(bookDetails.getBookId(),bookDetails.getBookName(),bookLocalPath,bookDetails.getPages()));
+        if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+            String result = data.getStringExtra("result");
+            String message = data.getStringExtra("message");
+            if (result.equals("success")) {
+                if (library.indexOf(bookDetails.getBookId()) == -1) {
+                    //save to library
+                    library.add(bookDetails.getBookId());
                     saveLibrary();
-                    Log.d(TAG,"Zip file Downloaded and Extracted to "+message);
+                    //add to adapter
+                    addBookToList(bookDetails.getBookId());
+                    Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
+                }
+                else{
+                    Snackbar.make(listView, "Book is already in the library.", Snackbar.LENGTH_LONG).show();
+                }
+            } else {
 
-                    Snackbar.make(listView,message,Snackbar.LENGTH_LONG).show();
+                Snackbar.make(listView, message, Snackbar.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    boolean bookExists(BookModel book){
+        boolean result = false;
+        for (BookModel lbook:books) {
+            if(lbook.getBookId().equals(book.getBookId())){
+                result =true;
+                break;
+            }
+        }
+        return result;
+    }
+
+    void addBookToList(String bookId) {
+        File bookFolder = new File(ApplicationHelper.booksFolder,bookId);
+        if(bookFolder.exists()){
+            try {
+                Book jsonBook =  (new Gson()).fromJson(new FileReader(bookFolder.getAbsolutePath()+"/book.json"),Book.class);
+                adapter.add(new BookModel(jsonBook.getId(),jsonBook.getName(),bookFolder.getAbsolutePath(), String.valueOf(jsonBook.getPages().length)));
+                adapter.notifyDataSetChanged();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    void loadBooks(){
+        books = new ArrayList<BookModel>();
+        for(String bookId:library){
+            File bookFolder = new File(ApplicationHelper.booksFolder,bookId);
+            if(bookFolder.exists()){
+                try {
+                    Book jsonBook =  (new Gson()).fromJson(new FileReader(bookFolder.getAbsolutePath()+"/book.json"),Book.class);
+                    books.add(new BookModel(jsonBook.getId(),jsonBook.getName(),bookFolder.getAbsolutePath(), String.valueOf(jsonBook.getPages().length)));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         }
-
     }
 
     @Override
@@ -258,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
 
     void startDownloadActivity(BookDetails bookDetails){
         Intent intent = new Intent(MainActivity.this, BookDownloadActivity.class);
-        //intent.putExtra("url",bookDetails.downloadUrl);
         intent.putExtra("book", bookDetails);
         startActivityForResult(intent, 2);
     }
@@ -266,14 +276,23 @@ public class MainActivity extends AppCompatActivity {
     void saveLibrary(){
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         Gson gson = new Gson();
-        String json = gson.toJson(books);
+        String json = gson.toJson(library);
         prefsEditor.putString(LIBRARY, json);
         prefsEditor.commit();
     }
-    ArrayList<BookModel> getLibrary(){
-        String json = mPrefs.getString(LIBRARY, null);
-        Type type = new TypeToken<ArrayList<BookModel>>() {}.getType();
-        books = new Gson().fromJson(json, type);
-        return books;
+    ArrayList<String> getLibrary(){
+        try {
+            String json = mPrefs.getString(LIBRARY, null);
+            Type type = new TypeToken<ArrayList<String>>() {
+            }.getType();
+            library = new Gson().fromJson(json, type);
+            if(library == null){
+                library=new ArrayList<String>();
+            }
+        }
+        catch (Exception e){
+            library=new ArrayList<String>();
+        }
+        return library;
     }
 }

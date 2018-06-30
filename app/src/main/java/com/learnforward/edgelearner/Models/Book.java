@@ -6,11 +6,9 @@ public class Book
 
     private String audio;
 
-    private Pages[] pages;
+    private String[] pages;
 
     private String name;
-
-    private String path;
 
     public String getId ()
     {
@@ -32,12 +30,12 @@ public class Book
         this.audio = audio;
     }
 
-    public Pages[] getPages ()
+    public String[] getPages ()
     {
         return pages;
     }
 
-    public void setPages (Pages[] pages)
+    public void setPages (String[] pages)
     {
         this.pages = pages;
     }
@@ -52,19 +50,9 @@ public class Book
         this.name = name;
     }
 
-    public String getPath ()
-    {
-        return path;
-    }
-
-    public void setPath (String path)
-    {
-        this.path = path;
-    }
-
     @Override
     public String toString()
     {
-        return "ClassPojo [id = "+id+", audio = "+audio+", pages = "+pages+", name = "+name+", path = "+path+"]";
+        return "ClassPojo [id = "+id+", audio = "+audio+", pages = "+pages+", name = "+name+"]";
     }
 }

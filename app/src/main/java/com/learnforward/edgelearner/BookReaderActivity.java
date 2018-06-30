@@ -70,9 +70,6 @@ public class BookReaderActivity extends AppCompatActivity {
         list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(BookReaderActivity.this, ChaptersActivity.class);
-                intent.putExtra("bookId",bookId);
-                startActivityForResult(intent,1);
             }
         });
 

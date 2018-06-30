@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#44000000"
-        app:line_color="#7323DC"
+        app:line_color="#ff0000"
         app:line_speed="6"
         app:line_width="4"
         app:square_height="250"
@@ -53,7 +53,7 @@
             android:layout_centerInParent="true"
             android:layout_marginBottom="10dp"
             android:gravity="center_horizontal"
-            android:text="@string/copyright"
+            android:text="@string/copy"
             android:textColor="@color/colorAccent"
             android:textSize="14dp" />
     </RelativeLayout>
