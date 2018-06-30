@@ -34,9 +34,7 @@
         </activity>
         <activity android:name=".ScannerActivity" />
         <activity android:name=".BookDownloadActivity" />
-        <activity
-            android:name=".BookReaderActivity"
-            android:hardwareAccelerated="true" />
+        <activity android:name=".BookReaderActivity" />
         <activity android:name=".ChaptersActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ContactUsActivity" />

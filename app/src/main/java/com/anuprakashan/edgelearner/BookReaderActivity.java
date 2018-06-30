@@ -2,6 +2,7 @@ package com.anuprakashan.edgelearner;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -91,15 +92,25 @@ public class BookReaderActivity extends AppCompatActivity {
         File lFile = new File(bookIndexPage,"index.html");
 
         WebSettings webSettings = myWebView.getSettings();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            myWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else {
+            myWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
         webSettings.setDefaultTextEncodingName("utf-8");
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowContentAccess(true);
-        webSettings.setAppCacheEnabled(true);
-        webSettings.setDomStorageEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
         webSettings.setSupportZoom(false);
         webSettings.setBuiltInZoomControls(false);
-        webSettings.setDisplayZoomControls(false);
+        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setDomStorageEnabled(true);
+
+        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowContentAccess(true);
+        webSettings.setAppCacheEnabled(false);
+
         myWebView.setWebViewClient(new WebViewClient(){
 
             @Override
@@ -109,7 +120,7 @@ public class BookReaderActivity extends AppCompatActivity {
             }
         });
         myWebView.loadUrl("file:///"+ lFile.getAbsolutePath()+"#p=1");
-
+        myWebView.setWebContentsDebuggingEnabled(true);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
