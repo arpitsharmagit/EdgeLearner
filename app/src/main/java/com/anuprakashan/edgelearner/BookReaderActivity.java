@@ -120,7 +120,7 @@ public class BookReaderActivity extends AppCompatActivity {
             }
         });
         myWebView.loadUrl("file:///"+ lFile.getAbsolutePath()+"#p=1");
-        myWebView.setWebContentsDebuggingEnabled(true);
+//        myWebView.setWebContentsDebuggingEnabled(true);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
