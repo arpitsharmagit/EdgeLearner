@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -24,13 +25,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class BookViewActivity extends AppCompatActivity {
 
 
     ImageSwitcher slider;
     TextView bookPage;
-    ImageView btnAudio;
+    ImageView btnAudio,btnActivity;
     ImageButton btnBack,btnPlay;
     LinearLayout playLayout;
     SeekBar seekBar;
@@ -42,12 +45,16 @@ public class BookViewActivity extends AppCompatActivity {
     float x1,x2;
 
     MediaPlayer mp;
+    private Handler mHandler;
+    private Runnable mRunnable;
     boolean isPlaying =false,isAudioVisible=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_view);
+
+        mHandler = new Handler();
 
         //setup controls
         TextView bookTitle = findViewById(R.id.bookTitle);
@@ -62,12 +69,12 @@ public class BookViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(isPlaying){
-                    btnPlay.setImageResource(R.drawable.ic_pause);
+                    btnPlay.setImageResource(R.drawable.ic_play);
                     pause();
                     isPlaying=false;
                 }
                 else{
-                    btnPlay.setImageResource(R.drawable.ic_play);
+                    btnPlay.setImageResource(R.drawable.ic_pause);
                     play();
                     isPlaying=true;
                 }
@@ -83,7 +90,9 @@ public class BookViewActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                seek(progress);
+                if(mp!=null && fromUser) {
+                    seek(progress);
+                }
             }
 
             @Override
@@ -165,13 +174,26 @@ public class BookViewActivity extends AppCompatActivity {
             }
         });
 
+        btnActivity =findViewById(R.id.btnActivity);
+        btnActivity.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    //check activity type
+                    Intent intent = new Intent(BookViewActivity.this, McqActivity.class);
+                    intent.putExtra("activity",btnActivity.getTag().toString());
+                    startActivity(intent);
+                }
+                return false;
+            }
+        });
+
         initializeBook();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        play();
     }
 
     @Override
@@ -186,6 +208,9 @@ public class BookViewActivity extends AppCompatActivity {
         if(mp!=null){
             mp.release();
             mp = null;
+            if(mHandler!=null){
+                mHandler.removeCallbacks(mRunnable);
+            }
         }
     }
 
@@ -199,6 +224,7 @@ public class BookViewActivity extends AppCompatActivity {
 
         //set activity button
         showSpeechButton();
+        showActivityButton();
     }
     void slideToLeft(){
         currPage++;
@@ -215,12 +241,15 @@ public class BookViewActivity extends AppCompatActivity {
         slider.setOutAnimation(this,R.anim.slide_out_left);
         slider.setImageURI(Uri.fromFile(new File(builder.toString())));
 
-        if(mp!=null)
+        if(mp!=null) {
             mp.pause();
+            playLayout.setVisibility(View.GONE);
+        }
 
         //show speech button
         showSpeechButton();
         //set activity button
+        showActivityButton();
 
     }
     void slideToRight(){
@@ -237,12 +266,15 @@ public class BookViewActivity extends AppCompatActivity {
         slider.setOutAnimation(this,R.anim.slide_out_right);
         slider.setImageURI(Uri.fromFile(new File(builder.toString())));
 
-        if(mp!=null)
+        if(mp!=null) {
             mp.pause();
+            playLayout.setVisibility(View.GONE);
+        }
 
         //show speech button
         showSpeechButton();
         //set activity button
+        showActivityButton();
     }
     void showSpeechButton(){
         String page = book.getPages()[currPage];
@@ -256,6 +288,20 @@ public class BookViewActivity extends AppCompatActivity {
         }
         else{
             btnAudio.setVisibility(View.GONE);
+        }
+    }
+    void showActivityButton(){
+        String page = book.getPages()[currPage];
+        StringBuilder builder = new StringBuilder();
+        builder.append(bookPath).append("/activities/").append(page).append(".json");
+        String actPath = builder.toString();
+        File activity = new File(actPath);
+        if(activity.exists()){
+            btnActivity.setVisibility(View.VISIBLE);
+            btnActivity.setTag(builder.toString());
+        }
+        else{
+            btnActivity.setVisibility(View.GONE);
         }
     }
     Book getBook(String bookId){
@@ -285,14 +331,47 @@ public class BookViewActivity extends AppCompatActivity {
         if(mp!=null){
             mp.release();
             mp = null;
+            if(mHandler!=null){
+                mHandler.removeCallbacks(mRunnable);
+            }
         }
         mp = new MediaPlayer();
         mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mp.setDataSource(getApplicationContext(), uri);
             mp.prepare();
-            seekBar.setProgress(0);
-            seekBar.setMax(mp.getDuration());
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    playLayout.setVisibility(View.GONE);
+                    if(mHandler!=null){
+                        mHandler.removeCallbacks(mRunnable);
+                    }
+                }
+            });
+            mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(final MediaPlayer mp) {
+                    seekBar.setProgress(0);
+                    seekBar.setMax(mp.getDuration());
+
+                    mRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if(mp!=null){
+                                int mCurrentPosition = mp.getCurrentPosition(); // In milliseconds
+                                seekBar.setProgress(mCurrentPosition);
+                            }
+                            mHandler.postDelayed(mRunnable,1000);
+                        }
+                    };
+                    mHandler.postDelayed(mRunnable,1000);
+
+                    mp.start();
+                }
+            });
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
