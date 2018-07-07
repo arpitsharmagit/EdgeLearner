@@ -1,12 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.learnforward.edgelearner.McqActivity">
-    <android.support.v7.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World Portrat"/>
-</android.support.constraint.ConstraintLayout>
+    tools:context=".McqActivity">
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg"/>
+
+    <ImageButton
+        android:id="@+id/btnPrev"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center|left"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/prev_btn" />
+
+    <ImageButton
+        android:id="@+id/btnNext"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center|right"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        android:src="@drawable/next_btn" />
+
+    <RelativeLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="65dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="30dp"
+        android:paddingLeft="20dp">
+
+
+    </RelativeLayout>
+</FrameLayout>

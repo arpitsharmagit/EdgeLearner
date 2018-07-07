@@ -95,7 +95,7 @@
             android:layout_gravity="top|center"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:src="@drawable/act"/>
         <LinearLayout
             android:id="@+id/play_layout"

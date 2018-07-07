@@ -1,9 +1,17 @@
 package com.learnforward.edgelearner;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -11,31 +19,55 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.webkit.CookieManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.Gson;
+import com.learnforward.edgelearner.Models.Audio;
 import com.learnforward.edgelearner.Models.Book;
+import com.learnforward.edgelearner.Models.Ddq;
 import com.learnforward.edgelearner.Models.MCQModel;
 import com.learnforward.edgelearner.Models.MCQQuestion;
+import com.learnforward.edgelearner.Models.Mcq;
+import com.learnforward.edgelearner.Models.Questions;
+import com.learnforward.edgelearner.Models.QuestionsModel;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Locale;
 
 import static android.support.v4.content.res.ResourcesCompat.getFont;
 
-public class McqActivity extends AppCompatActivity implements View.OnClickListener {
+public class McqActivity extends AppCompatActivity implements View.OnClickListener, View.OnDragListener {
 
-    LinearLayout questionsContainer;
-    MCQModel model;
+
+    QuestionsModel model;
+    Questions [] questions;
+    int currentQuestion=0, lastQuestion=0;
+    Audio audios;
+    ImageView background;
+    ImageButton prev,next;
+    Button dragbtn;
+    RelativeLayout container;
+    String dataPath;
+    MediaPlayer mp;
+    TextView drop;
+    int blankSize;
+    Paint dropperPaint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,38 +77,137 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         //Setup Book details
         Intent intent = getIntent();
         String activityPath = intent.getStringExtra("activity");
+        File activity =new File(activityPath);
+        String activityFolder =  activity.getParent();
+        dataPath = activityFolder.replace("activities","extra");
+
+        container = findViewById(R.id.container);
+        background = findViewById(R.id.background);
+
+        prev = findViewById(R.id.btnPrev);
+        next = findViewById(R.id.btnNext);
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goPrev();
+            }
+        });
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goNext();
+            }
+        });
+
 
         try {
-            model =  (new Gson()).fromJson(new FileReader(activityPath),MCQModel.class);
+            model =  (new Gson()).fromJson(new FileReader(activityPath),QuestionsModel.class);
+            audios = model.getAudio();
+            questions = model.getQuestions();
+            lastQuestion = questions.length-1;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             finish();
         }
 
-        //model = mockData();
-        questionsContainer=findViewById(R.id.questions_container);
+        initialize();
 
-        generateView();
-        overrideFonts(this,questionsContainer);
+    }
+    void setPrevNextButtons(){
+        if(currentQuestion == 0){
+            prev.setVisibility(View.GONE);
+        }
+        else{
+            prev.setVisibility(View.VISIBLE);
+        }
+        if(currentQuestion == lastQuestion){
+            next.setVisibility(View.GONE);
+        }
+        else {
+            next.setVisibility(View.VISIBLE);
+        }
+    }
+    void initialize(){
+        setPrevNextButtons();
+        Questions question = questions[currentQuestion];
+
+        File bg=new File(dataPath,question.getBackground());
+        background.setImageBitmap(loadImage(bg.getAbsolutePath()));
+
+        File mainAudio = new File(dataPath,question.getAudio());
+        if(mainAudio.exists()) {
+            playSound(question.getAudio());
+        }
+
+        if(question.getType().equals("mcq")){
+            loadMcqView(question);
+        }
+        if(question.getType().equals("ddq")){
+            loadDdqView(question);
+        }
+    }
+    void goPrev(){
+        currentQuestion--;
+        setPrevNextButtons();
+        Questions question = questions[currentQuestion];
+        File bg=new File(dataPath,question.getBackground());
+        background.setImageBitmap(loadImage(bg.getAbsolutePath()));
+
+        File mainAudio = new File(dataPath,question.getAudio());
+        if(mainAudio.exists()) {
+            playSound(question.getAudio());
+        }
+
+        if(question.getType().equals("mcq")){
+            loadMcqView(question);
+        }
+        if(question.getType().equals("ddq")){
+            loadDdqView(question);
+        }
+    }
+    void goNext(){
+        currentQuestion++;
+        setPrevNextButtons();
+        Questions question = questions[currentQuestion];
+
+        File bg=new File(dataPath,question.getBackground());
+        background.setImageBitmap(loadImage(bg.getAbsolutePath()));
+
+        File mainAudio = new File(dataPath,question.getAudio());
+        if(mainAudio.exists()) {
+            playSound(question.getAudio());
+        }
+
+        if(question.getType().equals("mcq")){
+            loadMcqView(question);
+        }
+        if(question.getType().equals("ddq")){
+            loadDdqView(question);
+        }
     }
 
-    void generateView(){
+    void loadMcqView(Questions question){
+        container.removeAllViews();
+        View child = getLayoutInflater().inflate(R.layout.mcq_layout, null);
+        container.addView(child);
+        LinearLayout questionsContainer=child.findViewById(R.id.questions_container);
+
         int padding5 =convertToDp(5);
         int padding10 = convertToDp(10);
         int imgSize = convertToDp(20);
         int questionCounter = 1;
 
-        for (MCQQuestion qModel:model.getMcqQuestions()) {
+        for (Mcq qModel:question.getMcq()) {
 
             //create question view
             String counter = questionCounter +". ";
-            String question = counter + qModel.getQuestion();
+            String ques = counter + qModel.getQuestion();
             TextView questionView = new TextView(this);
             questionView.setPadding(padding10,0,0,0);
             questionView.setTextColor(Color.BLACK);
             questionView.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-            questionView.setText(makeSectionOfTextBold(question,counter));
+            questionView.setText(makeSectionOfTextBold(ques,counter));
 
             LinearLayout optionsContainer = new LinearLayout(this);
             optionsContainer.setPadding(imgSize,0,0,0);
@@ -126,6 +257,91 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             questionsContainer.addView(mainContainer);
             questionCounter++;
         }
+        overrideFonts(this,questionsContainer);
+    }
+    void loadDdqView(Questions question){
+        container.removeAllViews();
+        View child = getLayoutInflater().inflate(R.layout.ddq_layout, null);
+        container.addView(child);
+
+        LinearLayout questionsContainer=child.findViewById(R.id.ddq_container);
+        FlexboxLayout helpboxLayout =  child.findViewById(R.id.helpbox);
+        TextView questionTitle =child.findViewById(R.id.questiontitle);
+        questionTitle.setText(question.getTitle());
+
+        int padding2 =convertToDp(2);
+        int questionCounter = 1;
+        for (Ddq qModel:question.getDdq()) {
+
+            String counter = questionCounter +". ";
+            String ques = counter + qModel.getQuestion();
+            String [] questionParts = ques.split("@#",4);
+
+            LinearLayout questionContainer = new LinearLayout(this);
+            questionContainer.setOrientation(LinearLayout.HORIZONTAL);
+            questionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            ViewGroup.LayoutParams  questionViewParams= new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+            for(int i=0;i<questionParts.length;i++){
+                TextView questionView = new TextView(this);
+                questionView.setTextColor(Color.BLACK);
+                questionView.setLayoutParams(questionViewParams);
+                questionView.setText(makeSectionOfTextBold(questionParts[i],counter));
+                questionContainer.addView(questionView);
+
+                if(i < questionParts.length-1) {
+                    TextView questionDrop = new TextView(this);
+                    questionDrop.setTextColor(Color.BLACK);
+                    questionDrop.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    questionDrop.setTag(qModel.getAnswer()[i]);
+                    questionDrop.setOnDragListener(this);
+                    questionDrop.setText("....................");
+                    dropperPaint = questionDrop.getPaint();
+                    blankSize = getTextWidth(questionDrop.getText().toString(),questionDrop.getPaint());
+                    questionContainer.addView(questionDrop);
+                }
+            }
+            questionsContainer.addView(questionContainer);
+            questionCounter++;
+        }
+
+        for(String ans:question.getHelpbox()){
+            int margin3=convertToDp(3);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    convertToDp(65),
+                    convertToDp(30));
+            Button btn = new Button(this);
+            btn.setLayoutParams(params);
+            btn.setEms(1);
+            btn.setText(ans);
+            btn.setTextSize(9);
+            btn.setLayoutParams(params);
+            btn.setBackgroundResource(R.drawable.drag_btn);
+            btn.setTag(ans);
+            btn.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    ClipData data = ClipData.newPlainText("label",v.getTag().toString());
+                    if (android.os.Build.VERSION.SDK_INT >= 24) {
+                        v.startDragAndDrop(data,new View.DragShadowBuilder(v),null,0);
+                    }else {
+                        v.startDrag(data,new View.DragShadowBuilder(v),null,0);
+                    }
+                    return true;
+                }
+            });
+            helpboxLayout.addView(btn);
+        }
+    }
+    public int getTextWidth(String text, Paint paint) {
+        Rect bounds = new Rect();
+        paint.getTextBounds(text, 0, text.length(), bounds);
+        int width = bounds.left + bounds.width();
+        return width;
     }
     MCQModel mockData(){
         MCQQuestion question1 = new MCQQuestion();
@@ -173,15 +389,19 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         if(v instanceof ImageButton){
             ImageButton optionClicked = (ImageButton)v;
             String [] data = String.valueOf(optionClicked.getTag()).split("@",2);
-            String questionId = data[0];
+            String mcqId = data[0];
             String selectedOption = data[1];
-            for (MCQQuestion question:model.getMcqQuestions()) {
-                if(question.getId().equals(questionId)){
-                    if(question.getAnswer().equals(selectedOption)) {
+            Questions question = questions[currentQuestion];
+            for (Mcq mcq:question.getMcq()) {
+                if(mcq.getId().equals(mcqId)){
+                    if(mcq.getAnswer().equals(selectedOption)) {
                         //right ans
+                        playSound(audios.getCorrect());
                         optionClicked.setImageResource(R.drawable.mcq_right);
+                        playSound(audios.getClapping());
                     }
                     else{
+                        playSound(audios.getIncorrect());
                         //wrong ans
                         optionClicked.setImageResource(R.drawable.mcq_wrong);
                     }
@@ -208,6 +428,92 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             }
         } catch (Exception e) {
         }
+    }
+
+    Bitmap loadImage(String imagePath){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
+        return bitmap;
+    }
+
+    void playSound(String audio){
+        Uri uri = Uri.fromFile(new File(dataPath,audio));
+//        if(mp!=null){
+//            mp.release();
+//            mp = null;
+//        }
+        MediaPlayer mp = new MediaPlayer();
+        mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mp.setDataSource(getApplicationContext(), uri);
+            mp.prepare();
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                    mp = null;
+                }
+            });
+            mp.start();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public boolean onDrag(View v, DragEvent event) {
+        switch(event.getAction()) {
+            case DragEvent.ACTION_DRAG_STARTED:
+                return true;
+
+            case DragEvent.ACTION_DRAG_ENTERED:
+                v.setBackgroundColor(Color.LTGRAY);
+                return true;
+
+            case DragEvent.ACTION_DRAG_LOCATION:
+                return true;
+
+            case DragEvent.ACTION_DRAG_EXITED:
+                v.setBackgroundColor(Color.TRANSPARENT);
+                return true;
+
+            case DragEvent.ACTION_DROP:
+                v.setBackgroundColor(Color.TRANSPARENT);
+                String dragVal = event.getClipData().getItemAt(0).getText().toString();
+                String viewVal = ((TextView) v).getText().toString();
+                String answer= v.getTag().toString();
+                if(answer.equals(dragVal)){
+                    int replaceSize = getTextWidth(dragVal,dropperPaint);
+                    int sideSize = (blankSize - replaceSize)/2;
+                    int sideDotCount = (int)(sideSize/7);
+                    StringBuilder builder = new StringBuilder();
+                    for(int j=0;j<sideDotCount;j++){
+                        builder.append(".");
+                    }
+                    builder.append(dragVal);
+                    for(int j=0;j<sideDotCount;j++){
+                        builder.append(".");
+                    }
+                    viewVal = viewVal.replace("....................",builder.toString());
+                    playSound(audios.getCorrect());
+                    playSound(audios.getClapping());
+                    ((TextView) v).setText(viewVal);
+                }
+                else{
+                    playSound(audios.getIncorrect());
+                }
+                return true;
+
+            case DragEvent.ACTION_DRAG_ENDED:
+                return true;
+
+            default:
+                break;
+        }
+        return false;
     }
 }
 

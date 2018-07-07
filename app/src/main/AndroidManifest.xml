@@ -36,7 +36,6 @@
         <activity android:name=".BookReaderActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ContactUsActivity" />
-        <activity android:name=".DropTestActivity" />
         <activity android:name=".BookViewActivity" />
         <activity android:name=".McqActivity"
             android:screenOrientation="landscape"
