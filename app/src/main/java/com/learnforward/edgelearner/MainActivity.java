@@ -3,7 +3,6 @@ package com.learnforward.edgelearner;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,21 +10,18 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.learnforward.edgelearner.Models.Book;
+import com.learnforward.edgelearner.Models.Book.Book;
 import com.learnforward.edgelearner.Models.BookDetails;
 import com.learnforward.edgelearner.Models.BookModel;
 import com.learnforward.edgelearner.utils.ApplicationHelper;
@@ -49,12 +45,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String LIBRARY = "BOOKS";
     private static final  int HANDLE_PERM = 1;
     File booksFolder,zipFolder;
-    BookDetails bookDetails;
+    static BookDetails bookDetails;
     ArrayList<BookModel> books;
     ListView listView;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     SharedPreferences mPrefs;
     CustomAdapter adapter;
+    String bookCode;
 
     ArrayList<String> library; //save downloaded book ids
 
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         listView= findViewById(R.id.list);
+//        clearLibrary();
     }
 
     @Override
@@ -116,14 +114,46 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        Intent data = getIntent();
+        if(data.getStringExtra("result")!=null){
+            String result = data.getStringExtra("result");
+            String message = data.getStringExtra("message");
+            if (result.equals("success")) {
+                if (library.indexOf(bookDetails.getBookId()) == -1) {
+                    //save to library
+                    library.add(bookDetails.getBookId());
+                    saveLibrary();
+                    //add to adapter
+                    addBookToList(bookDetails.getBookId());
+                    Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
+                }
+                else{
+                    Snackbar.make(listView, "Book is already in the library.", Snackbar.LENGTH_LONG).show();
+                }
+            } else {
+
+                Snackbar.make(listView, message, Snackbar.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            final String bookCode = data.getStringExtra("code");
+            bookCode = data.getStringExtra("code");
             if (bookCode != null) {
+                if(URLUtil.isValidUrl(bookCode)){
+                    //process extract code
+                    int startIndex = bookCode.lastIndexOf("/")+1;
+                    int endIndex = bookCode.lastIndexOf(".");
+                    if(endIndex>startIndex) {
+                        bookCode = bookCode.substring(startIndex, endIndex);
+                    }
+                    else{
+                        bookCode = bookCode.substring(startIndex);
+                    }
+                }
                 final ProgressDialog dialog = new ProgressDialog(this);
                 dialog.setMessage("Searching book...");
                 dialog.setCancelable(false);
@@ -280,6 +310,15 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.putString(LIBRARY, json);
         prefsEditor.commit();
     }
+    void removeBookFromLibrary(String bookId){
+        library.remove(bookId);
+        saveLibrary();
+    }
+    void clearLibrary(){
+        library.clear();
+        saveLibrary();
+    }
+
     ArrayList<String> getLibrary(){
         try {
             String json = mPrefs.getString(LIBRARY, null);

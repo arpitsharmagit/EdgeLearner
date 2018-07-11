@@ -1,4 +1,4 @@
-package com.learnforward.edgelearner.Models;
+package com.learnforward.edgelearner.Models.Act;
 
 public class Mcq {
     private String id;

@@ -1,4 +1,4 @@
-package com.learnforward.edgelearner.Models;
+package com.learnforward.edgelearner.Models.Act;
 
 public class Ddq {
     private String id;

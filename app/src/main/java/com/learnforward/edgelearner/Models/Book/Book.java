@@ -1,4 +1,4 @@
-package com.learnforward.edgelearner.Models;
+package com.learnforward.edgelearner.Models.Book;
 
 public class Book
 {
@@ -9,6 +9,12 @@ public class Book
     private String[] pages;
 
     private String name;
+
+    private String activityImg;
+
+    private String soundImg;
+
+    private Chapters[] chapters;
 
     public String getId ()
     {
@@ -48,6 +54,25 @@ public class Book
     public void setName (String name)
     {
         this.name = name;
+    }
+
+    public void setActivityImg(String activityImg){
+        this.activityImg = activityImg;
+    }
+    public String getActivityImg(){
+        return this.activityImg;
+    }
+    public void setSoundImg(String soundImg){
+        this.soundImg = soundImg;
+    }
+    public String getSoundImg(){
+        return this.soundImg;
+    }
+    public void setChapters(Chapters[] chapters){
+        this.chapters = chapters;
+    }
+    public Chapters[] getChapters(){
+        return this.chapters;
     }
 
     @Override

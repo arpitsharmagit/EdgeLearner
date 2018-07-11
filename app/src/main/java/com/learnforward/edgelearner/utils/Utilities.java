@@ -1,6 +1,7 @@
 package com.learnforward.edgelearner.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
@@ -23,6 +24,12 @@ import java.util.zip.ZipFile;
 public class Utilities {
     static String TAG ="Utilities";
 
+    public static Bitmap loadImage(String imagePath){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
+        return bitmap;
+    }
     public static Bitmap TextToImageEncode(String Value,int QRcodeWidth) throws WriterException {
         int white = 0xFFFFFFFF;
         int black = 0xFF000000;

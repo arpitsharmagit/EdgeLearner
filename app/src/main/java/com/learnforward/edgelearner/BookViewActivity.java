@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -17,19 +18,30 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.learnforward.edgelearner.Models.Book;
+import com.learnforward.edgelearner.Models.Book.Book;
 import com.learnforward.edgelearner.utils.ApplicationHelper;
 import com.google.gson.Gson;
+import com.learnforward.edgelearner.utils.Utilities;
+
+import org.xdty.preference.colorpicker.ColorPickerDialog;
+import org.xdty.preference.colorpicker.ColorPickerSwatch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class BookViewActivity extends AppCompatActivity {
 
+
+    //Bottom toolbar buttons
+    ImageButton btnColor,btnLineSize,btnPen,btnRectangle,btnRemove;
+
+    //Top toolbar buttons
+    ImageButton btnIndex,btnBookmark,btnBookmarkList,btnEditText,btnGoto;
+
+    //preferences
+    private int mSelectedColor;
 
     ImageSwitcher slider;
     TextView bookPage;
@@ -54,7 +66,37 @@ public class BookViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_view);
 
+
+        //Setup Book details
+        Intent intent = getIntent();
+        String bookId = intent.getStringExtra("bookId");
+
+        book = getBook(bookId);
+        if(book == null){
+            finish();
+        }
+
         mHandler = new Handler();
+
+        //top toolbar
+        btnIndex = findViewById(R.id.btn_index);
+        btnBookmark = findViewById(R.id.btn_bookmark);
+        btnBookmarkList = findViewById(R.id.btn_bookmark_list);
+        btnEditText = findViewById(R.id.btn_text);
+        btnGoto=findViewById(R.id.btn_goto);
+        bindTopToolbar();
+
+        //bottom toolbar
+        btnColor=findViewById(R.id.btn_color);
+        btnLineSize = findViewById(R.id.btn_linesize);
+        btnPen = findViewById(R.id.btn_pen);
+        btnRectangle= findViewById(R.id.btn_rectangle);
+        btnRemove = findViewById(R.id.btn_remove);
+        bindBottomToolbar();
+
+        //defaults
+        mSelectedColor = ContextCompat.getColor(this, R.color.flamingo);
+
 
         //setup controls
         TextView bookTitle = findViewById(R.id.bookTitle);
@@ -64,7 +106,6 @@ public class BookViewActivity extends AppCompatActivity {
         playLayout = findViewById(R.id.play_layout);
         btnBack = findViewById(R.id.btn_back);
         btnPlay = findViewById(R.id.btn_play);
-
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,14 +147,6 @@ public class BookViewActivity extends AppCompatActivity {
             }
         });
 
-        //Setup Book details
-        Intent intent = getIntent();
-        String bookId = intent.getStringExtra("bookId");
-
-        book = getBook(bookId);
-        if(book == null){
-            finish();
-        }
         bookTitle.setText(book.getName());
 
         //setup slider
@@ -151,6 +184,7 @@ public class BookViewActivity extends AppCompatActivity {
         });
 
         btnAudio = findViewById(R.id.btnAudio);
+        btnAudio.setImageBitmap(Utilities.loadImage(bookPath+"/extra/"+book.getSoundImg()));
         btnAudio.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -175,6 +209,7 @@ public class BookViewActivity extends AppCompatActivity {
         });
 
         btnActivity =findViewById(R.id.btnActivity);
+        btnActivity.setImageBitmap(Utilities.loadImage(bookPath+"/extra/"+book.getActivityImg()));
         btnActivity.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -375,6 +410,35 @@ public class BookViewActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+    void bindBottomToolbar(){
+        //ImageButton btnColor,btnLineSize,btnPen,btnRectangle,btnRemove;
+        int[] mColors = getResources().getIntArray(R.array.default_rainbow);
+        final ColorPickerDialog dialog = ColorPickerDialog.newInstance(R.string.color_picker_default_title,
+                mColors,
+                mSelectedColor,
+                5,
+                ColorPickerDialog.SIZE_SMALL,
+                true
+        );
+        dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+
+            @Override
+            public void onColorSelected(int color) {
+                mSelectedColor = color;
+            }
+
+        });
+        btnColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show(getFragmentManager(), "color_dialog_test");
+            }
+        });
+    }
+    void bindTopToolbar(){
+        //ImageButton btnIndex,btnBookmark,btnBookmarkList,btnEditText,btnGoto;
 
     }
 }

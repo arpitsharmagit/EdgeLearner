@@ -1,15 +1,21 @@
 package com.learnforward.edgelearner;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PowerManager;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,10 +39,17 @@ public class BookDownloadActivity extends AppCompatActivity {
     private static final String TAG = "BookDownloadActivity";
     public static final int DIALOG_DOWNLOAD_PROGRESS = 0;
 
+    String channelId;
+    NotificationManager notificationManager;
+    NotificationCompat.Builder notificationBuilder;
+    static Context context;
+    static int NOTIFICATION_ID = 111;
+
     ProgressBar progressBar;
     ImageButton btnCancel;
     TextView txtStatus,txtBookName,txtBookSize;
     DownloaderTask downloadTask;
+    Button skip;
 
     int count;
     BookDetails bookDetails;
@@ -53,11 +66,25 @@ public class BookDownloadActivity extends AppCompatActivity {
             actionBar.hide();
         }
 
+        channelId = getString(R.string.default_notification_channel_id);
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationBuilder = new NotificationCompat.Builder(this, channelId);
+
         txtStatus = findViewById(R.id.txtStatus);
         txtBookName =findViewById(R.id.txt_bookname);
         txtBookSize = findViewById(R.id.txt_booksize);
         progressBar = findViewById(R.id.progressBarDownload);
         btnCancel = findViewById(R.id.btnCancel);
+        skip = findViewById(R.id.skip);
+
+        skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent returnIntent = new Intent(BookDownloadActivity.this,MainActivity.class);
+                returnIntent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+                startActivity(returnIntent);
+            }
+        });
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,17 +132,17 @@ public class BookDownloadActivity extends AppCompatActivity {
     @Override
     public void onBackPressed()
     {
-        Intent returnIntent = new Intent();
-        setResult(Activity.RESULT_CANCELED,returnIntent);
-        finish();
+        Intent returnIntent = new Intent(this,MainActivity.class);
+        returnIntent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(returnIntent);
     }
 
     private void sendResult(String result,String message){
-        Intent returnIntent = new Intent();
+        Intent returnIntent = new Intent(BookDownloadActivity.this,MainActivity.class);
+        returnIntent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         returnIntent.putExtra("result",result);
         returnIntent.putExtra("message",message);
-        setResult(Activity.RESULT_OK,returnIntent);
-        finish();
+        startActivity(returnIntent);
     }
 
     class DownloaderTask extends AsyncTask<String, Integer, String> {
@@ -151,6 +178,25 @@ public class BookDownloadActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... sUrl) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(channelId,channelId,NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            notificationBuilder
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setSmallIcon(R.mipmap.ic_appicon)
+                    .setContentTitle("Book Downloader")
+                    .setContentText(bookDetails.getBookName())
+                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                    .setOnlyAlertOnce(true)
+                    .setProgress(100, 0, false)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(false);
+
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+
             String finalStatus = "";
             String downloadUrl =sUrl[1];
             String bookId = sUrl[0];
@@ -231,11 +277,21 @@ public class BookDownloadActivity extends AppCompatActivity {
             progressBar.setProgress(progress[0]);
             txtBookSize.setText("Download Size: "+fileSize);
             txtStatus.setText("Downloading..."+ progress[0]+"%");
+            notificationBuilder
+                    .setContentTitle("Book Downloader")
+                    .setContentText(bookDetails.getBookName())
+                    .setOngoing(true)
+                    .setContentInfo(progress[0] + "%")
+                    .setProgress(100, progress[0], false);
+
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
         }
 
         @Override
         protected void onPostExecute(String result) {
             mWakeLock.release();
+            notificationManager.cancel(NOTIFICATION_ID);
+            notificationBuilder = null;
             if (result != null){
                 //Start Extraction Task
                 txtStatus.setText("Download Complete.");
@@ -253,6 +309,8 @@ public class BookDownloadActivity extends AppCompatActivity {
         @Override
         protected void onCancelled (String result) {
             super.onCancelled(result);
+            notificationManager.cancel(NOTIFICATION_ID);
+            notificationBuilder = null;
             //anything else you want to do after the task was cancelled, maybe delete the incomplete download.
             if(file!=null && file.exists())
                 file.delete();

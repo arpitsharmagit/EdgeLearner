@@ -3,8 +3,6 @@ package com.learnforward.edgelearner;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -14,17 +12,14 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.webkit.CookieManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,17 +27,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.flexbox.AlignContent;
+import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.android.gms.common.util.ArrayUtils;
 import com.google.gson.Gson;
-import com.learnforward.edgelearner.Models.Audio;
-import com.learnforward.edgelearner.Models.Book;
-import com.learnforward.edgelearner.Models.Ddq;
-import com.learnforward.edgelearner.Models.MCQModel;
-import com.learnforward.edgelearner.Models.MCQQuestion;
-import com.learnforward.edgelearner.Models.Mcq;
-import com.learnforward.edgelearner.Models.Questions;
-import com.learnforward.edgelearner.Models.QuestionsModel;
+import com.learnforward.edgelearner.Models.Act.Audio;
+import com.learnforward.edgelearner.Models.Act.Ddq;
+import com.learnforward.edgelearner.Models.Act.Mcq;
+import com.learnforward.edgelearner.Models.Act.Questions;
+import com.learnforward.edgelearner.Models.Act.QuestionsModel;
+import com.learnforward.edgelearner.utils.Utilities;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -85,6 +79,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         background = findViewById(R.id.background);
 
         prev = findViewById(R.id.btnPrev);
+
         next = findViewById(R.id.btnNext);
         prev.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,7 +127,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         Questions question = questions[currentQuestion];
 
         File bg=new File(dataPath,question.getBackground());
-        background.setImageBitmap(loadImage(bg.getAbsolutePath()));
+        background.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
 
         File mainAudio = new File(dataPath,question.getAudio());
         if(mainAudio.exists()) {
@@ -151,7 +146,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         setPrevNextButtons();
         Questions question = questions[currentQuestion];
         File bg=new File(dataPath,question.getBackground());
-        background.setImageBitmap(loadImage(bg.getAbsolutePath()));
+        background.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
 
         File mainAudio = new File(dataPath,question.getAudio());
         if(mainAudio.exists()) {
@@ -171,7 +166,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         Questions question = questions[currentQuestion];
 
         File bg=new File(dataPath,question.getBackground());
-        background.setImageBitmap(loadImage(bg.getAbsolutePath()));
+        background.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
 
         File mainAudio = new File(dataPath,question.getAudio());
         if(mainAudio.exists()) {
@@ -192,6 +187,11 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         container.addView(child);
         LinearLayout questionsContainer=child.findViewById(R.id.questions_container);
 
+        ImageView topbanner =findViewById(R.id.top_banner);
+        File bg=new File(dataPath,question.getTitleImage());
+        topbanner.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
+
+        int padding2 =convertToDp(2);
         int padding5 =convertToDp(5);
         int padding10 = convertToDp(10);
         int imgSize = convertToDp(20);
@@ -203,16 +203,20 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             String counter = questionCounter +". ";
             String ques = counter + qModel.getQuestion();
             TextView questionView = new TextView(this);
-            questionView.setPadding(padding10,0,0,0);
+//            questionView.setPadding(padding10,0,0,0);
             questionView.setTextColor(Color.BLACK);
             questionView.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
             questionView.setText(makeSectionOfTextBold(ques,counter));
 
+            TextView questionTitle =child.findViewById(R.id.questiontitle);
+            questionTitle.setText(question.getTitle());
+
             LinearLayout optionsContainer = new LinearLayout(this);
             optionsContainer.setPadding(imgSize,0,0,0);
             optionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+            optionsContainer.setTag(qModel.getId());
 
             int optionCounter = 97;
             //create options
@@ -233,12 +237,14 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                 optionContainer.addView(optionTextView);
 
                 ImageButton optionButton = new ImageButton(this);
+//                optionButton.setId();
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         imgSize,imgSize);
                 params.gravity=Gravity.CENTER;
+                optionButton.setPadding(padding2,padding2,padding2,padding2);
                 optionButton.setLayoutParams(params);
                 optionButton.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                optionButton.setBackgroundColor(Color.TRANSPARENT);
+                optionButton.setBackgroundColor(Color.WHITE);
                 optionButton.setImageResource(R.drawable.mcq_blank);
                 optionButton.setTag(qModel.getId()+"@"+option);
                 optionButton.setOnClickListener(this);
@@ -257,17 +263,25 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             questionsContainer.addView(mainContainer);
             questionCounter++;
         }
-        overrideFonts(this,questionsContainer);
+//        overrideFonts(this,questionsContainer);
     }
     void loadDdqView(Questions question){
         container.removeAllViews();
         View child = getLayoutInflater().inflate(R.layout.ddq_layout, null);
         container.addView(child);
 
+        ImageView topbanner =findViewById(R.id.top_banner);
+        File bg=new File(dataPath,question.getTitleImage());
+        topbanner.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
+
         LinearLayout questionsContainer=child.findViewById(R.id.ddq_container);
         FlexboxLayout helpboxLayout =  child.findViewById(R.id.helpbox);
         TextView questionTitle =child.findViewById(R.id.questiontitle);
         questionTitle.setText(question.getTitle());
+
+        ImageView helpboxBg = child.findViewById(R.id.helpboxBg);
+        helpboxBg.setScaleType(ImageView.ScaleType.FIT_XY);
+        helpboxBg.setImageBitmap(Utilities.loadImage(dataPath+"/"+question.getHelpboxImg()));
 
         int padding2 =convertToDp(2);
         int questionCounter = 1;
@@ -277,11 +291,20 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             String ques = counter + qModel.getQuestion();
             String [] questionParts = ques.split("@#",4);
 
-            LinearLayout questionContainer = new LinearLayout(this);
-            questionContainer.setOrientation(LinearLayout.HORIZONTAL);
+            FlexboxLayout questionContainer = new FlexboxLayout(this);
+            questionContainer.setAlignContent(AlignContent.FLEX_START);
+            questionContainer.setFlexWrap(FlexWrap.WRAP);
+            questionContainer.setJustifyContent(AlignContent.FLEX_START);
+            questionContainer.setAlignItems(AlignContent.FLEX_START);
             questionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
             ));
+//            LinearLayout questionContainer = new LinearLayout(this);
+//            questionContainer.setOrientation(LinearLayout.HORIZONTAL);
+//            questionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
+//                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT
+//            ));
             ViewGroup.LayoutParams  questionViewParams= new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
             for(int i=0;i<questionParts.length;i++){
@@ -322,9 +345,9 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             btn.setLayoutParams(params);
             btn.setBackgroundResource(R.drawable.drag_btn);
             btn.setTag(ans);
-            btn.setOnLongClickListener(new View.OnLongClickListener() {
+            btn.setOnTouchListener(new View.OnTouchListener() {
                 @Override
-                public boolean onLongClick(View v) {
+                public boolean onTouch(View v, MotionEvent event) {
                     ClipData data = ClipData.newPlainText("label",v.getTag().toString());
                     if (android.os.Build.VERSION.SDK_INT >= 24) {
                         v.startDragAndDrop(data,new View.DragShadowBuilder(v),null,0);
@@ -342,23 +365,6 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         paint.getTextBounds(text, 0, text.length(), bounds);
         int width = bounds.left + bounds.width();
         return width;
-    }
-    MCQModel mockData(){
-        MCQQuestion question1 = new MCQQuestion();
-        question1.setId("1");
-        question1.setQuestion("The child wished to be");
-        question1.setAnswer("an orange");
-        question1.setOptions(new String[]{"an orange","an apple","a tree"});
-
-        MCQQuestion question2 = new MCQQuestion();
-        question2.setId("2");
-        question2.setQuestion("The child wished to be grow on");
-        question2.setAnswer("a tree");
-        question2.setOptions(new String[]{"a tree","a brush","a vine"});
-
-        MCQModel model =new MCQModel();
-        model.setMcqQuestions(new MCQQuestion[] {question1,question2});
-        return model;
     }
 
      SpannableStringBuilder makeSectionOfTextBold(String text, String... textToBold) {
@@ -399,6 +405,15 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                         playSound(audios.getCorrect());
                         optionClicked.setImageResource(R.drawable.mcq_right);
                         playSound(audios.getClapping());
+
+                        //disable all other
+                        LinearLayout optionsContainer = (LinearLayout)v.getParent().getParent();
+                        for (int i=0;i<optionsContainer.getChildCount();i++){
+                            LinearLayout  optionContainer =(LinearLayout) optionsContainer.getChildAt(i);
+                            ImageButton optionButton = (ImageButton) optionContainer.getChildAt(1);
+                            optionButton.setOnClickListener(null);
+                        }
+
                     }
                     else{
                         playSound(audios.getIncorrect());
@@ -428,13 +443,6 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             }
         } catch (Exception e) {
         }
-    }
-
-    Bitmap loadImage(String imagePath){
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
-        return bitmap;
     }
 
     void playSound(String audio){
@@ -497,6 +505,9 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                     for(int j=0;j<sideDotCount;j++){
                         builder.append(".");
                     }
+
+                    TextView textView = (TextView) v;
+                    textView.setTextColor(Color.GREEN);
                     viewVal = viewVal.replace("....................",builder.toString());
                     playSound(audios.getCorrect());
                     playSound(audios.getClapping());

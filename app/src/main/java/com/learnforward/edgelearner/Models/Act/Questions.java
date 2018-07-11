@@ -1,4 +1,4 @@
-package com.learnforward.edgelearner.Models;
+package com.learnforward.edgelearner.Models.Act;
 
 public class Questions {
 
@@ -7,6 +7,8 @@ public class Questions {
     private Mcq[] mcq;
 
     private String title;
+    private String titleImage;
+    private String helpboxImg;
 
     private String audio;
 
@@ -15,6 +17,22 @@ public class Questions {
     private String type;
 
     private String[] helpbox;
+
+    public String getHelpboxImg() {
+        return helpboxImg;
+    }
+
+    public void setHelpboxImg(String helpboxImg) {
+        this.helpboxImg = helpboxImg;
+    }
+
+    public String getTitleImage() {
+        return titleImage;
+    }
+
+    public void setTitleImage(String titleImage) {
+        this.titleImage = titleImage;
+    }
 
     public Ddq[] getDdq ()
     {
@@ -76,12 +94,12 @@ public class Questions {
         this.type = type;
     }
 
-    public String[] getHelpbox ()
+    public String[] getHelpbox()
     {
         return helpbox;
     }
 
-    public void setHelpbox (String[] helpbox)
+    public void setHelpbox(String[] helpbox)
     {
         this.helpbox = helpbox;
     }

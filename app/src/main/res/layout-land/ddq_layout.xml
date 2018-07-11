@@ -8,23 +8,22 @@
     <ImageView
         android:id="@+id/top_banner"
         android:layout_width="150dp"
-        android:layout_height="60dp"
-        android:src="@drawable/fun" />
+        android:layout_height="60dp" />
         <LinearLayout
             android:layout_below="@+id/top_banner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="vertical">
             <LinearLayout
                 android:layout_weight=".2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
-
             <TextView
                 android:id="@+id/questiontitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
                 android:text=""
                 android:textColor="@android:color/black"
                 android:textStyle="bold"/>
@@ -33,7 +32,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-
                 </LinearLayout>
             </LinearLayout>
             <RelativeLayout
@@ -41,24 +39,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent">
                 <FrameLayout
-                    android:layout_width="200dp"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true">
                     <ImageView
+                        android:id="@+id/helpboxBg"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/help_box"/>
+                        android:layout_height="match_parent" />
                     <com.google.android.flexbox.FlexboxLayout
                         android:id="@+id/helpbox"
-                        android:layout_marginTop="45dp"
+                        android:layout_marginTop="30dp"
                         android:layout_marginRight="10dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginBottom="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:overScrollMode="always"
-                        app:justifyContent="center"
+                        app:justifyContent="flex_start"
                         app:flexWrap="wrap"
                         app:alignItems="flex_start"
                         app:alignContent="flex_start">

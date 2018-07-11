@@ -87,16 +87,15 @@
             android:layout_gravity="top"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:visibility="gone"
-            android:src="@drawable/sound"/>
+            android:visibility="gone" />
         <ImageView
             android:id="@+id/btnActivity"
             android:layout_marginTop="5dp"
-            android:layout_gravity="top|center"
+            android:layout_marginRight="5dp"
+            android:layout_gravity="top|right"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:visibility="gone"
-            android:src="@drawable/act"/>
+            android:visibility="gone" />
         <LinearLayout
             android:id="@+id/play_layout"
             android:layout_width="wrap_content"
