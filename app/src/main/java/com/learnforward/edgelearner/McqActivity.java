@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.util.TypedValue;
@@ -334,16 +335,19 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
 
         for(String ans:question.getHelpbox()){
             int margin3=convertToDp(3);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    convertToDp(65),
-                    convertToDp(30));
-            Button btn = new Button(this);
+            FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    convertToDp(25));
+            params.setMargins(5,5,5,5);
+            AppCompatButton btn = new AppCompatButton(this);
+            btn.setPadding(0,0,0,0);
             btn.setLayoutParams(params);
-            btn.setEms(1);
+            btn.setMinHeight(0);
+            btn.setMinWidth(0);
             btn.setText(ans);
-            btn.setTextSize(9);
-            btn.setLayoutParams(params);
-            btn.setBackgroundResource(R.drawable.drag_btn);
+            btn.setTextSize(12);
+            btn.setTextColor(Color.BLACK);
+            btn.setBackgroundResource(R.drawable.round_rect);
             btn.setTag(ans);
             btn.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -507,11 +511,12 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                     }
 
                     TextView textView = (TextView) v;
-                    textView.setTextColor(Color.GREEN);
+                    textView.setTextColor(Color.argb(255,0,128,0));
                     viewVal = viewVal.replace("....................",builder.toString());
                     playSound(audios.getCorrect());
                     playSound(audios.getClapping());
-                    ((TextView) v).setText(viewVal);
+                    textView.setText(viewVal);
+                    textView.setOnDragListener(null);
                 }
                 else{
                     playSound(audios.getIncorrect());
