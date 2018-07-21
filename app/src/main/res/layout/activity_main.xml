@@ -30,8 +30,8 @@
             android:textSize="20dp"
             android:text="My Library"/>
         <LinearLayout
+            android:layout_toLeftOf="@id/quicklayout"
             android:id="@+id/scan"
-            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:padding="5dp">
@@ -48,6 +48,30 @@
                 android:gravity="center"
                 android:textSize="18dp"/>
         </LinearLayout>
+        <LinearLayout
+            android:id="@+id/quicklayout"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="5dp">
+            <ImageButton
+                android:id="@+id/contactus"
+                android:padding="5dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_contactus"/>
+            <ImageButton
+                android:id="@+id/aboutus"
+                android:padding="5dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_aboutus"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
     <RelativeLayout

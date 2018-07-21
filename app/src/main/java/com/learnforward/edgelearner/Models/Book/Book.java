@@ -16,6 +16,16 @@ public class Book
 
     private Chapters[] chapters;
 
+    private int [] bookmarks;
+
+    public int[] getBookmarks() {
+        return bookmarks;
+    }
+
+    public void setBookmarks(int[] bookmarks) {
+        this.bookmarks = bookmarks;
+    }
+
     public String getId ()
     {
         return id;

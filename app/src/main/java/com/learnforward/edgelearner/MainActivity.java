@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
@@ -64,11 +65,29 @@ public class MainActivity extends AppCompatActivity {
 
         mPrefs = getPreferences(MODE_PRIVATE);
         library = getLibrary();
+        library.add("new-001");
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
+
+        ImageButton aboutUs = findViewById(R.id.aboutus);
+        aboutUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent aboutIntent = new Intent(MainActivity.this,AboutActivity.class);
+                startActivity(aboutIntent);
+            }
+        });
+        ImageButton contactUs = findViewById(R.id.contactus);
+        contactUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent contactUsIntent = new Intent(MainActivity.this,ContactUsActivity.class);
+                startActivity(contactUsIntent);
+            }
+        });
 
         LinearLayout scan =findViewById(R.id.scan);
         scan.setOnClickListener(new View.OnClickListener() {

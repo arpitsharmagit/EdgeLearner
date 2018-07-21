@@ -210,6 +210,31 @@ public class BookDownloadActivity extends AppCompatActivity {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
+                boolean redirect = false;
+
+                // normally, 3xx is redirect
+                int status = connection.getResponseCode();
+                if (status != HttpURLConnection.HTTP_OK) {
+                    if (status == HttpURLConnection.HTTP_MOVED_TEMP
+                            || status == HttpURLConnection.HTTP_MOVED_PERM
+                            || status == HttpURLConnection.HTTP_SEE_OTHER)
+                        redirect = true;
+                }
+
+                if (redirect) {
+
+                    // get redirect url from "location" header field
+                    String newUrl = connection.getHeaderField("Location");
+
+                    // get the cookie if need, for login
+                    String cookies = connection.getHeaderField("Set-Cookie");
+
+                    // open the new connnection again
+                    connection = (HttpURLConnection) new URL(newUrl).openConnection();
+                    connection.setRequestProperty("Cookie", cookies);
+                }
+
+
                 if(connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND){
                     finalStatus = connection.getResponseMessage();
                     return finalStatus;

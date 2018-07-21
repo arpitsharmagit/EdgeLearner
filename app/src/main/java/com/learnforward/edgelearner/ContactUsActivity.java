@@ -3,6 +3,7 @@ package com.learnforward.edgelearner;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -20,15 +21,13 @@ public class ContactUsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Contact Us");
 
         TextView txtAddress = findViewById(R.id.txtAddress);
-        TextView txtTelephone = findViewById(R.id.txtTelephone);
-        TextView txtEmail = findViewById(R.id.txtEmail);
 
-        txtAddress.setText("Learning Solutions\n" +
-                "807/2, Sant Vihar, Old Vidya Prakashan Mandir\n" +
-                "Office,\n" +
-                "Transport Nagar, Meerut City.\n");
-        txtTelephone.setText("0121-3192323, 0121-2401096");
-        txtEmail.setText("anuprakashanmandir.co.in");
+        txtAddress.setText(Html.fromHtml("<br/><br/><b>Vidya Industrial Estate,</b><br/>" +
+                "Baghpat Road,<br/>" +
+                "Meerut-250 002 (Delhi-NCR) INDIA<br/>" +
+                "Toll Free: 18002701317<br/><br/>" +
+                "E: learnforwardin@gmail.com<br/>" +
+                "W: http://learnforward.in/"));
     }
 
     @Override

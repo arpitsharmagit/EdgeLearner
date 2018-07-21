@@ -30,9 +30,22 @@
                 <LinearLayout
                     android:id="@+id/ddq_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
                 </LinearLayout>
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/ddqImg_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:justifyContent="center"
+                    app:flexWrap="wrap"
+                    app:alignItems="center"
+                    app:alignContent="center"
+                    android:visibility="gone">
+
+                </com.google.android.flexbox.FlexboxLayout>
             </LinearLayout>
             <RelativeLayout
                 android:layout_weight="7"

@@ -1,9 +1,12 @@
 package com.learnforward.edgelearner.utils;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+import android.util.TypedValue;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -14,6 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -27,8 +31,12 @@ public class Utilities {
     public static Bitmap loadImage(String imagePath){
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
-        return bitmap;
+        return BitmapFactory.decodeFile(imagePath, options);
+    }
+    public static int dp2px(Context context, int dp) {
+        final Resources res = context.getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, res.getDisplayMetrics());
+        return Math.round(px);
     }
     public static Bitmap TextToImageEncode(String Value,int QRcodeWidth) throws WriterException {
         int white = 0xFFFFFFFF;
@@ -64,6 +72,23 @@ public class Utilities {
         bitmap.setPixels(pixels, 0, 500, 0, 0, bitMatrixWidth, bitMatrixHeight);
         return bitmap;
     }
+
+    public static void savePaint(Bitmap bitmap,String savedFilePath){
+        File file = new File(savedFilePath);
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+
+        } catch (FileNotFoundException e) {
+            Log.e("Panel", "FileNotFoundException", e);
+        }
+        catch (IOException e) {
+            Log.e("Panel", "IOEception", e);
+        }
+    }
+
     public static String saveImage(Bitmap myBitmap,String folder,String filename) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         myBitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);

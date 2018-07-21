@@ -3,6 +3,7 @@ package com.learnforward.edgelearner;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -21,17 +22,17 @@ public class AboutActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("About Us");
 
         TextView txtAbout = findViewById(R.id.txtAbout);
-        txtAbout.setText(
-                "\n" +
-                "   Since child is the father of the nation, we owe our love to children. It is our earnest endeavour to provide best quality books to these little birds who have just begun to fluff their wings for their flight into the infinite. We, at Learning Solutions, cover the complete process of teaching-learning and aim to import knowledge in way which will arouse the curiosity of the young energetic minds. Our books give students the opportunity to understand and enjoy their learning. They help teachers to teach in a simple way.\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "   With over 400 books written and designed as per NCERT, CBSE and ICSE syllabi Learning Solutions is one of India’s  quality school text book publishers.\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "   Our team of authors, editors, illustrators and reviewers are well experienced, passionate and committed to publishing the best    for students. Our sales distributors across the country provide support in reaching thousands of schools across the country.");
+        txtAbout.setText(Html.fromHtml("<br/><br/>" +
+                "<b>LEARN FORWARD App</b> is a digital learning tool for smart learners. It simplifies learning " +
+                "and make it fun in the digital age. With our easy to access digital E-books explore " +
+                "anytime anywhere learning with additional voice chapter, animation, activities, puzzles " +
+                "that helps build our readers and learner a better understanding and a longer retention of " +
+                "the content.<br/><br/>" +
+                "It's simple.<br/><br/>" +
+                "It's Interactive.<br/><br/>" +
+                "It's Fun.<br/><br/>" +
+                "Experience learning like never before from one of India's Leading Digital Technology " +
+                "Provider Learn Forward."));
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

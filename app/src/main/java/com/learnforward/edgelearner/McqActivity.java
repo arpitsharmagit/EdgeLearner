@@ -58,7 +58,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
     ImageButton prev,next;
     Button dragbtn;
     RelativeLayout container;
-    String dataPath;
+    String dataPath,activityFolder;
     MediaPlayer mp;
     TextView drop;
     int blankSize;
@@ -73,8 +73,8 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         Intent intent = getIntent();
         String activityPath = intent.getStringExtra("activity");
         File activity =new File(activityPath);
-        String activityFolder =  activity.getParent();
-        dataPath = activityFolder.replace("activities","extra");
+        activityFolder =  activityPath.replace(".json","/");
+        dataPath = activity.getParent().replace("activities","extra");
 
         container = findViewById(R.id.container);
         background = findViewById(R.id.background);
@@ -140,6 +140,9 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         }
         if(question.getType().equals("ddq")){
             loadDdqView(question);
+        }
+        if(question.getType().equals("ddqImg")){
+            loadDdqViewImg(question);
         }
     }
     void goPrev(){
@@ -276,6 +279,8 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         topbanner.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
 
         LinearLayout questionsContainer=child.findViewById(R.id.ddq_container);
+        questionsContainer.setVisibility(View.VISIBLE);
+
         FlexboxLayout helpboxLayout =  child.findViewById(R.id.helpbox);
         TextView questionTitle =child.findViewById(R.id.questiontitle);
         questionTitle.setText(question.getTitle());
@@ -329,6 +334,112 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                     questionContainer.addView(questionDrop);
                 }
             }
+            questionsContainer.addView(questionContainer);
+            questionCounter++;
+        }
+
+        for(String ans:question.getHelpbox()){
+            int margin3=convertToDp(3);
+            FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    convertToDp(25));
+            params.setMargins(5,5,5,5);
+            AppCompatButton btn = new AppCompatButton(this);
+            btn.setPadding(0,0,0,0);
+            btn.setLayoutParams(params);
+            btn.setMinHeight(0);
+            btn.setMinWidth(0);
+            btn.setText(ans);
+            btn.setTextSize(12);
+            btn.setTextColor(Color.BLACK);
+            btn.setBackgroundResource(R.drawable.round_rect);
+            btn.setTag(ans);
+            btn.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    ClipData data = ClipData.newPlainText("label",v.getTag().toString());
+                    if (android.os.Build.VERSION.SDK_INT >= 24) {
+                        v.startDragAndDrop(data,new View.DragShadowBuilder(v),null,0);
+                    }else {
+                        v.startDrag(data,new View.DragShadowBuilder(v),null,0);
+                    }
+                    return true;
+                }
+            });
+            helpboxLayout.addView(btn);
+        }
+    }
+    void loadDdqViewImg(Questions question){
+        container.removeAllViews();
+        View child = getLayoutInflater().inflate(R.layout.ddq_layout, null);
+        container.addView(child);
+
+        ImageView topbanner =findViewById(R.id.top_banner);
+        File bg=new File(dataPath,question.getTitleImage());
+        topbanner.setImageBitmap(Utilities.loadImage(bg.getAbsolutePath()));
+
+        FlexboxLayout questionsContainer=child.findViewById(R.id.ddqImg_container);
+        questionsContainer.setVisibility(View.VISIBLE);
+
+        FlexboxLayout helpboxLayout =  child.findViewById(R.id.helpbox);
+        TextView questionTitle =child.findViewById(R.id.questiontitle);
+        questionTitle.setText(question.getTitle());
+
+        ImageView helpboxBg = child.findViewById(R.id.helpboxBg);
+        helpboxBg.setScaleType(ImageView.ScaleType.FIT_XY);
+        helpboxBg.setImageBitmap(Utilities.loadImage(dataPath+"/"+question.getHelpboxImg()));
+
+        int padding2 =convertToDp(2);
+        int questionCounter = 1;
+        for (Ddq qModel:question.getDdq()) {
+
+            String counter = questionCounter +". ";
+            String ques = counter + qModel.getQuestion();
+
+            LinearLayout questionContainer = new LinearLayout(this);
+            questionContainer.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+            int padding8 =convertToDp(8);
+            questionContainer.setPadding(padding8,padding8,padding8,padding8);
+            questionContainer.setOrientation(LinearLayout.VERTICAL);
+
+            LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
+                    convertToDp(150),
+                    convertToDp(100));
+            imageParams.gravity = Gravity.CENTER;
+
+            ImageView imageView =new ImageView(this);
+            imageView.setLayoutParams(imageParams);
+
+            StringBuilder builder = new StringBuilder();
+            builder.append(activityFolder).append(qModel.getImage());
+
+            imageView.setImageBitmap(Utilities.loadImage(builder.toString()));// Todo
+            questionContainer.addView(imageView);
+
+            LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            textParams.gravity=Gravity.CENTER;
+
+            TextView questionView = new TextView(this);
+            questionView.setTextColor(Color.BLACK);
+            questionView.setLayoutParams(textParams);
+            questionView.setText(makeSectionOfTextBold(ques,counter));
+            questionContainer.addView(questionView);
+
+            TextView questionDrop = new TextView(this);
+            questionDrop.setTextColor(Color.BLACK);
+            questionDrop.setLayoutParams(textParams);
+            questionDrop.setTag(qModel.getAnswer()[0]);
+            questionDrop.setOnDragListener(this);
+            questionDrop.setText("....................");
+            dropperPaint = questionDrop.getPaint();
+            blankSize = getTextWidth(questionDrop.getText().toString(),questionDrop.getPaint());
+            questionContainer.addView(questionDrop);
+
             questionsContainer.addView(questionContainer);
             questionCounter++;
         }

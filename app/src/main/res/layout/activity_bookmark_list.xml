@@ -4,11 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ContactUsActivity">
+    tools:context=".BookmarkList">
+
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBar"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -20,21 +19,11 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
-    <LinearLayout
-        android:id="@+id/lblAddress"
-        android:layout_margin="16dp"
+
+    <ListView
+        android:id="@+id/list"
         android:layout_below="@+id/appBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:layout_below="@+id/lblAddress"
-            android:id="@+id/txtAddress"
-            android:textSize="18dp"
-            android:textColor="@android:color/black"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-    </LinearLayout>
-
+        android:background="@android:color/white"/>
 </RelativeLayout>

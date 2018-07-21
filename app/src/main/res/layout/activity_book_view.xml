@@ -31,6 +31,13 @@
             android:padding="5dp"
             android:gravity="right" >
             <ImageButton
+                android:id="@+id/btn_zoom"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_zoom"/>
+            <ImageButton
                 android:id="@+id/btn_index"
                 android:layout_margin="8dp"
                 android:layout_width="wrap_content"
@@ -65,7 +72,13 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_goto"/>
-
+            <ImageButton
+                android:id="@+id/btn_help"
+                android:layout_margin="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_help"/>
         </LinearLayout>
     </RelativeLayout>
     <FrameLayout
@@ -74,6 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite">
+
         <ImageSwitcher
             android:id="@+id/imageSwitch"
             android:layout_width="match_parent"
@@ -119,7 +133,12 @@
                 android:background="@color/colorAccent"
                 />
         </LinearLayout>
-
+        <com.learnforward.edgelearner.paint.DrawingView
+            android:id="@+id/draw_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+        />
     </FrameLayout>
     <LinearLayout
         android:id="@+id/pageBar"
@@ -158,6 +177,7 @@
                 android:id="@+id/btn_color"
                 android:layout_weight="1"
                 android:layout_margin="8dp"
+                android:padding="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -166,6 +186,7 @@
                 android:id="@+id/btn_linesize"
                 android:layout_weight="1"
                 android:layout_margin="8dp"
+                android:padding="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -174,26 +195,38 @@
                 android:id="@+id/btn_pen"
                 android:layout_weight="1"
                 android:layout_margin="8dp"
+                android:padding="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_brush"/>
+                android:src="@drawable/ic_create"/>
             <ImageButton
                 android:id="@+id/btn_rectangle"
                 android:layout_weight="1"
                 android:layout_margin="8dp"
+                android:padding="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_rectangle"/>
             <ImageButton
-                android:id="@+id/btn_remove"
+                android:id="@+id/btn_erase"
                 android:layout_weight="1"
                 android:layout_margin="8dp"
+                android:padding="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_delete"/>
+            <ImageButton
+                android:id="@+id/btn_remove"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:padding="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_remove"/>
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

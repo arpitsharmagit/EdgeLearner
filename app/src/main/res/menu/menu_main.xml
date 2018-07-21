@@ -2,26 +2,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.learnforward.edgelearner.MainActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="101"
-        android:title="Add Book"
-        android:icon="@drawable/ic_scan"
-        app:showAsAction="always" />
 
     <item
         android:visible="false"
         android:id="@+id/action_contactus"
         android:orderInCategory="102"
         android:title="Contact Us"
-        android:icon="@drawable/ic_contactus"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_contactus"/>
 
     <item
         android:visible="false"
         android:id="@+id/action_aboutus"
         android:orderInCategory="103"
         android:title="About Us"
-        android:icon="@drawable/ic_aboutus"
-        app:showAsAction="always" />
+        android:icon="@drawable/ic_aboutus" />
 </menu>
