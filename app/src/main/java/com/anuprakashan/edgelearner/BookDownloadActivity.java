@@ -41,6 +41,7 @@ public class BookDownloadActivity extends AppCompatActivity {
     BookDetails bookDetails;
 
     private static final String SUCCESS = "success";
+    private static final String ERROR = "error";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +81,7 @@ public class BookDownloadActivity extends AppCompatActivity {
             }
         }
         else{
-            sendResult(SUCCESS,"Download url is Empty.");
+            sendResult(ERROR,"Download url is Empty.");
         }
     }
 
@@ -220,7 +221,7 @@ public class BookDownloadActivity extends AppCompatActivity {
                     extractFile(result);
                 }
                 else{
-                    sendResult(SUCCESS,result);
+                    sendResult(ERROR,result);
                 }
             }
         }
@@ -230,7 +231,7 @@ public class BookDownloadActivity extends AppCompatActivity {
             //anything else you want to do after the task was cancelled, maybe delete the incomplete download.
             if(file!=null && file.exists())
                 file.delete();
-            sendResult(SUCCESS,result);
+            sendResult(ERROR,result);
         }
     }
 }

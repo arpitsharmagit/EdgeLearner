@@ -6,6 +6,7 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import com.anuprakashan.edgelearner.utils.ApplicationHelper;
 
 import java.io.File;
+import java.lang.reflect.Method;
 
 public class BookReaderActivity extends AppCompatActivity {
 
@@ -106,6 +108,10 @@ public class BookReaderActivity extends AppCompatActivity {
         webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webSettings.setDomStorageEnabled(true);
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 16) {
+            webSettings.setMediaPlaybackRequiresUserGesture(false);
+        }
 
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
@@ -120,13 +126,17 @@ public class BookReaderActivity extends AppCompatActivity {
             }
         });
         myWebView.loadUrl("file:///"+ lFile.getAbsolutePath()+"#p=1");
-//        myWebView.setWebContentsDebuggingEnabled(true);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                        myWebView.evaluateJavascript("$('#BGSound')[0].pause();", null);
+                    } else {
+                        myWebView.loadUrl("javascript:$('#BGSound')[0].pause();");
+                    }
                         finish();
                     return true;
             }

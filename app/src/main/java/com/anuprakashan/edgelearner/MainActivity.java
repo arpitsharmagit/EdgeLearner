@@ -196,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
 
                     Snackbar.make(listView,message,Snackbar.LENGTH_LONG).show();
                 }
+                else{
+                    Snackbar.make(listView,message,Snackbar.LENGTH_LONG).show();
+                }
             }
         }
 
