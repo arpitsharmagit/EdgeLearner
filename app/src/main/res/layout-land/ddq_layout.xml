@@ -27,6 +27,19 @@
                 android:text=""
                 android:textColor="@android:color/black"
                 android:textStyle="bold"/>
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:scrollbarAlwaysDrawVerticalTrack="true"
+                    android:scrollbarFadeDuration="50000"
+                    android:scrollbarSize="8dp"
+                    android:scrollIndicators="top|bottom"
+                    android:scrollbarThumbVertical="@android:color/holo_blue_dark">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
                 <LinearLayout
                     android:id="@+id/ddq_container"
                     android:layout_width="match_parent"
@@ -44,8 +57,9 @@
                     app:alignItems="center"
                     app:alignContent="center"
                     android:visibility="gone">
-
                 </com.google.android.flexbox.FlexboxLayout>
+                    </LinearLayout>
+                </ScrollView>
             </LinearLayout>
             <RelativeLayout
                 android:layout_weight="7"
@@ -61,20 +75,30 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="fitXY" />
-                    <com.google.android.flexbox.FlexboxLayout
-                        android:id="@+id/helpbox"
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollIndicators="top|bottom"
+                        android:fadeScrollbars="false"
+                        android:scrollbarAlwaysDrawVerticalTrack="true"
+                        android:scrollbarFadeDuration="50000"
+                        android:scrollbarSize="8dp"
                         android:layout_marginTop="25dp"
                         android:layout_marginRight="10dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginBottom="5dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:overScrollMode="always"
-                        app:justifyContent="flex_start"
-                        app:flexWrap="wrap"
-                        app:alignItems="flex_start"
-                        app:alignContent="flex_start">
-                    </com.google.android.flexbox.FlexboxLayout>
+                        android:scrollbarThumbVertical="@android:color/holo_blue_dark">
+                        <com.google.android.flexbox.FlexboxLayout
+                            android:id="@+id/helpbox"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:overScrollMode="always"
+                            app:justifyContent="flex_start"
+                            app:flexWrap="wrap"
+                            app:alignItems="flex_start"
+                            app:alignContent="flex_start">
+                        </com.google.android.flexbox.FlexboxLayout>
+                    </ScrollView>
                 </FrameLayout>
 
             </RelativeLayout>

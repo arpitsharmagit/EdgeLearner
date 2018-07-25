@@ -22,7 +22,7 @@
     </android.support.design.widget.AppBarLayout>
     <LinearLayout
         android:id="@+id/lblAddress"
-        android:layout_margin="16dp"
+        android:layout_centerInParent="true"
         android:layout_below="@+id/appBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,6 +34,7 @@
             android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textAlignment="center"
             android:text="TextView" />
     </LinearLayout>
 

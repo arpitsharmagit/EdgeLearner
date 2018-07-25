@@ -22,7 +22,7 @@ public class ContactUsActivity extends AppCompatActivity {
 
         TextView txtAddress = findViewById(R.id.txtAddress);
 
-        txtAddress.setText(Html.fromHtml("<br/><br/><b>Vidya Industrial Estate,</b><br/>" +
+        txtAddress.setText(Html.fromHtml("<br/><br/><b><h3>Vidya Industrial Estate</h3></b>" +
                 "Baghpat Road,<br/>" +
                 "Meerut-250 002 (Delhi-NCR) INDIA<br/>" +
                 "Toll Free: 18002701317<br/><br/>" +

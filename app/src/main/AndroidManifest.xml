@@ -19,7 +19,8 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"/>
         <activity
             android:name=".SplashscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -33,7 +34,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ScannerActivity" />
-        <activity android:name=".BookDownloadActivity" />
+        <activity android:name=".BookDownloadActivity" android:launchMode="singleInstance" />
         <activity android:name=".BookReaderActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ContactUsActivity" />

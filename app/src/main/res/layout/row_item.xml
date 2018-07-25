@@ -9,7 +9,8 @@
     <ImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/default_book"
-        android:layout_width="32dp"
+        android:layout_marginLeft="5dp"
+        android:layout_width="24dp"
         android:layout_height="match_parent"
         android:src="@drawable/book"
         android:layout_weight=".10" />
@@ -25,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:text="Book 1"
-            android:textSize="18dp"
+            android:textSize="15dp"
             android:textColor="@color/colorAccent" />
         <TextView
             android:id="@+id/pages"

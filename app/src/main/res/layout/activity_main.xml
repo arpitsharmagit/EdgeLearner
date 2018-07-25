@@ -18,7 +18,7 @@
             android:id="@+id/libraryicon"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:padding="5dp"
+            android:padding="12dp"
             android:src="@drawable/library"/>
         <TextView
             android:layout_toRightOf="@+id/libraryicon"
@@ -27,11 +27,11 @@
             android:textColor="@color/colorWhite"
             android:gravity="center"
             android:textStyle="bold"
-            android:textSize="20dp"
+            android:textSize="16dp"
             android:text="My Library"/>
         <LinearLayout
-            android:layout_toLeftOf="@id/quicklayout"
             android:id="@+id/scan"
+            android:layout_alignParentEnd="true"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:padding="5dp">
@@ -50,24 +50,24 @@
         </LinearLayout>
         <LinearLayout
             android:id="@+id/quicklayout"
-            android:layout_alignParentEnd="true"
+            android:layout_toLeftOf="@id/scan"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:padding="5dp">
             <ImageButton
                 android:id="@+id/contactus"
-                android:padding="5dp"
+                android:layout_margin="8dp"
                 android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_contactus"/>
             <ImageButton
                 android:id="@+id/aboutus"
-                android:padding="5dp"
+                android:layout_margin="8dp"
                 android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_aboutus"/>
         </LinearLayout>
@@ -112,7 +112,7 @@
             android:gravity="right"
             android:text="@string/copy"
             android:textColor="@color/colorAccent"
-            android:textSize="14dp" />
+            android:textSize="10dp" />
     </RelativeLayout>
 
 </RelativeLayout>

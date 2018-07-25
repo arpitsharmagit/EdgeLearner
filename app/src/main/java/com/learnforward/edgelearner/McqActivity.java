@@ -216,19 +216,30 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             TextView questionTitle =child.findViewById(R.id.questiontitle);
             questionTitle.setText(question.getTitle());
 
-            LinearLayout optionsContainer = new LinearLayout(this);
+            FlexboxLayout optionsContainer = new FlexboxLayout(this);
             optionsContainer.setPadding(imgSize,0,0,0);
+            optionsContainer.setAlignContent(AlignContent.FLEX_START);
+            optionsContainer.setFlexWrap(FlexWrap.WRAP);
+            optionsContainer.setJustifyContent(AlignContent.FLEX_START);
+            optionsContainer.setAlignItems(AlignContent.FLEX_START);
             optionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-            optionsContainer.setTag(qModel.getId());
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            ));
+
+//            LinearLayout optionsContainer = new LinearLayout(this);
+//            optionsContainer.setPadding(imgSize,0,0,0);
+//            optionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
+//                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+//            optionsContainer.setTag(qModel.getId());
 
             int optionCounter = 97;
             //create options
             for (String option:qModel.getOptions()) {
                 LinearLayout optionContainer = new LinearLayout(this);
                 optionContainer.setPadding(padding5,padding5,padding5,padding5);
-                optionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+//                optionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
+//                        ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
 
                 String optCounterStr = (char)optionCounter +".  ";
                 String optionStr = optCounterStr + option;

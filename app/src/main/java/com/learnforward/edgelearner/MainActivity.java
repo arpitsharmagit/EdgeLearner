@@ -61,11 +61,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i(TAG,"onCreate");
+
         setContentView(R.layout.activity_main);
 
         mPrefs = getPreferences(MODE_PRIVATE);
         library = getLibrary();
-        library.add("new-001");
+        if(!library.contains("new-001")) {
+            library.add("new-001");
+        }
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -99,8 +103,33 @@ public class MainActivity extends AppCompatActivity {
         });
 
         listView= findViewById(R.id.list);
-//        clearLibrary();
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.i(TAG,"onNewIntent");
+        if (intent != null)
+            setIntent(intent);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.i(TAG,"onResume");
+
+        String result = getIntent().getStringExtra("result");
+        String message = getIntent().getStringExtra("message");
+        if (result!=null && result.equals("success")) {
+            if (library.indexOf(bookDetails.getBookId()) == -1) {
+                addBookToList(bookDetails.getBookId());
+                Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
+            }
+            else{
+                Snackbar.make(listView, "Book is already in the library.", Snackbar.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -201,10 +230,6 @@ public class MainActivity extends AppCompatActivity {
             String message = data.getStringExtra("message");
             if (result.equals("success")) {
                 if (library.indexOf(bookDetails.getBookId()) == -1) {
-                    //save to library
-                    library.add(bookDetails.getBookId());
-                    saveLibrary();
-                    //add to adapter
                     addBookToList(bookDetails.getBookId());
                     Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
                 }
@@ -319,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
     void startDownloadActivity(BookDetails bookDetails){
         Intent intent = new Intent(MainActivity.this, BookDownloadActivity.class);
         intent.putExtra("book", bookDetails);
-        startActivityForResult(intent, 2);
+        startActivity(intent);
     }
 
     void saveLibrary(){

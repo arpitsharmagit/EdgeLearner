@@ -8,6 +8,8 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.learnforward.edgelearner.MyViews.DTextView;
+
 public class AboutActivity extends AppCompatActivity {
 
     @Override
@@ -21,8 +23,8 @@ public class AboutActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("About Us");
 
-        TextView txtAbout = findViewById(R.id.txtAbout);
-        txtAbout.setText(Html.fromHtml("<br/><br/>" +
+        DTextView txtAbout = findViewById(R.id.txtAbout);
+        txtAbout.setText(Html.fromHtml("<br/>" +
                 "<b>LEARN FORWARD App</b> is a digital learning tool for smart learners. It simplifies learning " +
                 "and make it fun in the digital age. With our easy to access digital E-books explore " +
                 "anytime anywhere learning with additional voice chapter, animation, activities, puzzles " +

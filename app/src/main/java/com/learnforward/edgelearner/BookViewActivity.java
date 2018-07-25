@@ -73,6 +73,7 @@ public class BookViewActivity extends AppCompatActivity {
     ImageButton btnBack,btnPlay;
     LinearLayout playLayout;
     SeekBar seekBar;
+    Spotlight spotlight;
 
     //color
     int transparent,grey;
@@ -86,7 +87,7 @@ public class BookViewActivity extends AppCompatActivity {
     MediaPlayer mp;
     private Handler mHandler;
     private Runnable mRunnable;
-    boolean isPlaying =false,isAudioVisible=false,isBookmarked=false,isZoom=false,isComment=false;
+    boolean isPlaying =false,isAudioVisible=false,isBookmarked=false,isZoom=false,isComment=false,isSpotlight=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,11 +204,11 @@ public class BookViewActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         x2 = event.getX();
                         float deltaX = x2 - x1;
-                        if (deltaX < 0) {
+                        if (deltaX < -50.0f) {
                             //Right to left
                             slideToLeft();
 
-                        }else if(deltaX >0){
+                        }else if(deltaX >50.0f){
                             //left to Right
                             slideToRight();
                         }
@@ -283,6 +284,16 @@ public class BookViewActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        if(isSpotlight) {
+            spotlight.closeSpotlight();
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
     void initializeBook(){
         currPage = 0;
         Bookmark bookmark = new Bookmark();
@@ -997,7 +1008,7 @@ public class BookViewActivity extends AppCompatActivity {
                 .setShape(new Circle(80f))
                 .build();
 
-        Spotlight.with(this)
+        spotlight = Spotlight.with(this)
                 .setOverlayColor(R.color.black_overlay)
                 .setDuration(500L)
                 .setAnimation(new DecelerateInterpolator(2f))
@@ -1005,16 +1016,18 @@ public class BookViewActivity extends AppCompatActivity {
                         commentTarget,gotoTarget,helpTarget,colorTarget,penSizeTarget,penTarget,
                         highlightTarget,eraseTarget,removeTarget)
                 .setClosedOnTouchedOutside(true)
-                .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
-                    @Override
-                    public void onStarted() {
-                        Toast.makeText(BookViewActivity.this, "spotlight is started", Toast.LENGTH_SHORT).show();
-                    }
+        .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
+            @Override
+            public void onStarted() {
+                isSpotlight =true;
+            }
 
-                    @Override
-                    public void onEnded() {
-                        Toast.makeText(BookViewActivity.this, "spotlight is ended", Toast.LENGTH_SHORT).show();
-                    }
-                }).start();
+            @Override
+            public void onEnded() {
+                isSpotlight =false;
+            }
+        });
+        spotlight.start();
+
     }
 }

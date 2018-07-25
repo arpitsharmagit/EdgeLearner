@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
@@ -14,12 +15,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.learnforward.edgelearner.Models.BookDetails;
 import com.learnforward.edgelearner.utils.ApplicationHelper;
 
@@ -30,45 +34,45 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class BookDownloadActivity extends AppCompatActivity {
 
     private static final String TAG = "BookDownloadActivity";
     public static final int DIALOG_DOWNLOAD_PROGRESS = 0;
 
-    String channelId;
-    NotificationManager notificationManager;
-    NotificationCompat.Builder notificationBuilder;
+
     static Context context;
-    static int NOTIFICATION_ID = 111;
 
     ProgressBar progressBar;
     ImageButton btnCancel;
     TextView txtStatus,txtBookName,txtBookSize;
-    DownloaderTask downloadTask;
+    static DownloaderTask currentTask;
+
     Button skip;
 
     int count;
     BookDetails bookDetails;
+    static int currentNotification =0;
 
     private static final String SUCCESS = "success";
     private static final String FAILURE = "failure";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.i(TAG,"onCreate");
+
         setContentView(R.layout.activity_book_download);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
-
-        channelId = getString(R.string.default_notification_channel_id);
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationBuilder = new NotificationCompat.Builder(this, channelId);
 
         txtStatus = findViewById(R.id.txtStatus);
         txtBookName =findViewById(R.id.txt_bookname);
@@ -81,7 +85,6 @@ public class BookDownloadActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent returnIntent = new Intent(BookDownloadActivity.this,MainActivity.class);
-                returnIntent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
                 startActivity(returnIntent);
             }
         });
@@ -89,10 +92,51 @@ public class BookDownloadActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(downloadTask!=null)
-                    downloadTask.cancel(true);
+                if(currentTask !=null)
+                    currentTask .cancel(true);
             }
         });
+
+//        Bundle data = getIntent().getExtras();
+//        bookDetails = data.getParcelable("book");
+//
+//        if(bookDetails.getBookId()!=null && bookDetails.getDownloadUrl() !=null){
+//            txtBookSize.setText("Download Size: calculating...");
+//            txtBookName.setText(bookDetails.getBookName());
+//            File file = new File(ApplicationHelper.zipFolder,bookDetails.getBookId()+".zip") ;
+//            if(file.exists()){
+//                file.delete();
+//            }
+//            else{
+//                startDownload();
+//            }
+//        }
+//        else{
+//            sendResult(FAILURE,"Download url is Empty.");
+//        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent != null)
+            setIntent(intent);
+    }
+
+    private void extractFile(String extractFile){
+        Utilities.unzip(extractFile,ApplicationHelper.booksFolder.getAbsolutePath()+"/"+bookDetails.getBookId());
+        txtStatus.setText("Extracted");
+    }
+
+    private void startDownload(){
+        DownloaderTask downloadTask= new DownloaderTask(BookDownloadActivity.this);
+        downloadTask.execute(bookDetails.getBookId(),bookDetails.getDownloadUrl());
+        currentTask = downloadTask;
+    }
+
+    @Override
+    protected  void onResume(){
+        super.onResume();
+        Log.i(TAG,"onResume");
 
         Bundle data = getIntent().getExtras();
         bookDetails = data.getParcelable("book");
@@ -113,20 +157,10 @@ public class BookDownloadActivity extends AppCompatActivity {
         }
     }
 
-    private void extractFile(String extractFile){
-        Utilities.unzip(extractFile,ApplicationHelper.booksFolder.getAbsolutePath()+"/"+bookDetails.getBookId());
-        txtStatus.setText("Extracted");
-        sendResult(SUCCESS,"Download Completed Successfully!!!");
-    }
-
-    private void startDownload(){
-        downloadTask= new DownloaderTask(BookDownloadActivity.this);
-        downloadTask.execute(bookDetails.getBookId(),bookDetails.getDownloadUrl());
-    }
-
     @Override
     protected void onStop () {
         super.onStop();
+        Log.i(TAG,"onStop");
     }
 
     @Override
@@ -139,7 +173,6 @@ public class BookDownloadActivity extends AppCompatActivity {
 
     private void sendResult(String result,String message){
         Intent returnIntent = new Intent(BookDownloadActivity.this,MainActivity.class);
-        returnIntent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         returnIntent.putExtra("result",result);
         returnIntent.putExtra("message",message);
         startActivity(returnIntent);
@@ -149,11 +182,28 @@ public class BookDownloadActivity extends AppCompatActivity {
 
         private Context context;
         private PowerManager.WakeLock mWakeLock;
+
+        String channelId;
+        NotificationManager notificationManager;
+        NotificationCompat.Builder notificationBuilder;
+
         File file;
         String fileSize;
+        SharedPreferences mPrefs;
+        String LIBRARY = "BOOKS";
+        ArrayList<String> library;
+        int NOTIFICATION_ID = currentNotification++;
+
 
         public DownloaderTask(Context context) {
             this.context = context;
+
+            channelId = getString(R.string.default_notification_channel_id);
+            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationBuilder = new NotificationCompat.Builder(this.context, channelId);
+
+            mPrefs = getPreferences(MODE_PRIVATE);
+            loadLibrary();
         }
 
         public String getStringSizeLengthFile(long size) {
@@ -179,23 +229,7 @@ public class BookDownloadActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... sUrl) {
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(channelId,channelId,NotificationManager.IMPORTANCE_DEFAULT);
-                notificationManager.createNotificationChannel(channel);
-            }
-
-            notificationBuilder
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setSmallIcon(R.mipmap.ic_appicon)
-                    .setContentTitle("Book Downloader")
-                    .setContentText(bookDetails.getBookName())
-                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                    .setOnlyAlertOnce(true)
-                    .setProgress(100, 0, false)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setAutoCancel(false);
-
-            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+            generateNotification(this.context,bookDetails.getBookName());
 
             String finalStatus = "";
             String downloadUrl =sUrl[1];
@@ -287,6 +321,25 @@ public class BookDownloadActivity extends AppCompatActivity {
             }
         }
 
+        private void generateNotification(Context context, String bookName) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(channelId,channelId,NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(channel);
+            }
+            notificationBuilder
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setSmallIcon(R.mipmap.ic_appicon)
+                    .setContentTitle("Book Downloader")
+                    .setContentText(bookName)
+                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                    .setOnlyAlertOnce(true)
+                    .setProgress(100, 0, false)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(false);
+
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+        }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -325,6 +378,7 @@ public class BookDownloadActivity extends AppCompatActivity {
                 if(file.exists()) {
                     txtStatus.setText("Extracting...");
                     extractFile(result);
+                    sendResult(SUCCESS,"Download Completed Successfully!!!");
                 }
                 else{
                     sendResult(FAILURE,result);
@@ -340,6 +394,29 @@ public class BookDownloadActivity extends AppCompatActivity {
             if(file!=null && file.exists())
                 file.delete();
             sendResult(FAILURE,result);
+        }
+        void addToLibrary(String bookId){
+            library.add(bookId);
+            SharedPreferences.Editor prefsEditor = mPrefs.edit();
+            Gson gson = new Gson();
+            String json = gson.toJson(library);
+            prefsEditor.putString(LIBRARY, json);
+            prefsEditor.commit();
+        }
+
+        void loadLibrary(){
+            try {
+                String json = mPrefs.getString(LIBRARY, null);
+                Type type = new TypeToken<ArrayList<String>>() {
+                }.getType();
+                library = new Gson().fromJson(json, type);
+                if(library == null){
+                    library=new ArrayList<String>();
+                }
+            }
+            catch (Exception e){
+                library=new ArrayList<String>();
+            }
         }
     }
 }

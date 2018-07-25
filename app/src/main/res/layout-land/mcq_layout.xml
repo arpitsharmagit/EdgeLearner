@@ -26,7 +26,14 @@
                 android:textStyle="bold"/>
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:fadeScrollbars="false"
+                android:scrollIndicators="top|bottom"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:scrollbarFadeDuration="50000"
+                android:scrollbarSize="8dp"
+                android:scrollbarThumbVertical="@android:color/holo_blue_dark">
                 <LinearLayout
                     android:id="@+id/questions_container"
                     android:layout_width="wrap_content"
