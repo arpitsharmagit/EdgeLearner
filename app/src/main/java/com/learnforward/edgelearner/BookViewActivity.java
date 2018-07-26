@@ -885,6 +885,7 @@ public class BookViewActivity extends AppCompatActivity {
             }
         }
         if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+            loadBookmark();
             int pageNo = data.getIntExtra("page",-1);
             if(pageNo == -1){
                 Snackbar.make(slider,"No Bookmarks",Snackbar.LENGTH_LONG).show();

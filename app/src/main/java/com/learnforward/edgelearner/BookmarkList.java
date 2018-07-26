@@ -1,20 +1,19 @@
 package com.learnforward.edgelearner;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,14 +26,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
-public class BookmarkList extends AppCompatActivity {
+public class BookmarkList extends AppCompatActivity
+        implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener{
 
-    private ArrayList<Bookmark> bookmarks;
-    private ListView listView;
-    private BookmarkListAdapter adapter;
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private RecyclerView recyclerView;
+    private ArrayList<Bookmark> bookmarkList;
+    private BookmarkListAdapter mAdapter;
 
     private String bookId,bookmarkPath;
 
@@ -43,9 +43,10 @@ public class BookmarkList extends AppCompatActivity {
         bookmarkPath = ApplicationHelper.booksFolder + "/" + bookId+"/bookmark.json";
         try {
             Type listType = new TypeToken<ArrayList<Bookmark>>() {}.getType();
-            bookmarks = gson.fromJson(new FileReader(bookmarkPath), listType);
+            bookmarkList = gson.fromJson(new FileReader(bookmarkPath), listType);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            bookmarkList = new ArrayList<Bookmark>();
         }
     }
 
@@ -55,7 +56,9 @@ public class BookmarkList extends AppCompatActivity {
             FileWriter writer = new FileWriter(bookmarkPath);
 
             Gson objGson = new GsonBuilder().setPrettyPrinting().create();
-            objGson.toJson(bookmarks,writer);
+            objGson.toJson(bookmarkList,writer);
+            writer.flush();
+            writer.close();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -78,24 +81,59 @@ public class BookmarkList extends AppCompatActivity {
         if (bookId.equals("")) {
             returnResult(-1);
         }
-
         loadBookmark();
-        if (bookmarks == null || bookmarks.size()==0) {
+        if (bookmarkList == null || bookmarkList.size()==0) {
             returnResult(-1);
         }
         else {
+            recyclerView = findViewById(R.id.recycler_view);
+            mAdapter = new BookmarkListAdapter(this,
+                    bookmarkList,
+                    new BookmarkListAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(Bookmark item) {
+                            returnResult(item.getPageNo());
+                        }
+                    });
 
-            listView = findViewById(R.id.list);
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+            recyclerView.setAdapter(mAdapter);
 
-            adapter = new BookmarkListAdapter(bookmarks, getApplicationContext());
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
+            new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
+        }
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof BookmarkListAdapter.MyViewHolder) {
+            // get the removed item name to display it in snack bar
+            String name = String.valueOf(bookmarkList.get(viewHolder.getAdapterPosition()).getPageNo());
+
+            // backup of removed item for undo purpose
+            final Bookmark deletedBookmark = bookmarkList.get(viewHolder.getAdapterPosition());
+            final int deletedIndex = viewHolder.getAdapterPosition();
+
+            // remove the item from recycler view
+            mAdapter.removeBookmark(viewHolder.getAdapterPosition());
+            saveBook();
+
+            // showing snack bar with Undo option
+            Snackbar snackbar = Snackbar
+                    .make(recyclerView, name + " removed from bookmark!", Snackbar.LENGTH_LONG);
+            snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Bookmark dataModel = bookmarks.get(position);
-                    returnResult(dataModel.getPageNo());
+                public void onClick(View view) {
+
+                    // undo is selected, restore the deleted item
+                    mAdapter.restoreBookmark(deletedBookmark, deletedIndex);
                 }
             });
+            snackbar.setActionTextColor(Color.YELLOW);
+            snackbar.show();
         }
     }
 
@@ -117,70 +155,5 @@ public class BookmarkList extends AppCompatActivity {
         returnIntent.putExtra("page", page);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
-    }
-
-    private class BookmarkListAdapter extends ArrayAdapter<Bookmark> implements View.OnClickListener {
-
-        private ArrayList<Bookmark> dataSet;
-        Context mContext;
-
-        // View lookup cache
-        private class ViewHolder {
-            TextView txtPageNo;
-        }
-
-        public BookmarkListAdapter(ArrayList<Bookmark> data, Context context) {
-            super(context, R.layout.row_chapter, data);
-            this.dataSet = data;
-            this.mContext = context;
-
-        }
-
-        @Override
-        public void onClick(View v) {
-
-            int position = (Integer) v.getTag();
-            Object object = getItem(position);
-            Bookmark pageNo = (Bookmark) object;
-
-            switch (v.getId()) {
-                case R.id.item_info:
-                    Snackbar.make(v, "Chapter Details" + pageNo, Snackbar.LENGTH_LONG)
-                            .setAction("No action", null).show();
-                    break;
-            }
-        }
-
-        private int lastPosition = -1;
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // Get the data item for this position
-            Bookmark pageNo = getItem(position);
-            // Check if an existing view is being reused, otherwise inflate the view
-            ViewHolder viewHolder; // view lookup cache stored in tag
-
-            final View result;
-
-            if (convertView == null) {
-
-                viewHolder = new ViewHolder();
-                LayoutInflater inflater = LayoutInflater.from(getContext());
-                convertView = inflater.inflate(R.layout.row_chapter, parent, false);
-                viewHolder.txtPageNo = (TextView) convertView.findViewById(R.id.txtChapter);
-
-                result = convertView;
-
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (ViewHolder) convertView.getTag();
-                result = convertView;
-            }
-
-            viewHolder.txtPageNo.setText("Page " + pageNo.getPageNo());
-            // Return the completed view to render on screen
-            return convertView;
-        }
-
     }
 }
