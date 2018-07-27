@@ -8,12 +8,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -25,6 +29,11 @@ import android.widget.ListView;
 import com.learnforward.edgelearner.Models.Book.Book;
 import com.learnforward.edgelearner.Models.BookDetails;
 import com.learnforward.edgelearner.Models.BookModel;
+import com.learnforward.edgelearner.downloader.DownloadItemHelper;
+import com.learnforward.edgelearner.downloader.DownloadableItem;
+import com.learnforward.edgelearner.downloader.DownloadingStatus;
+import com.learnforward.edgelearner.downloader.ItemDetailsViewHolder;
+import com.learnforward.edgelearner.downloader.ItemListAdapter;
 import com.learnforward.edgelearner.utils.ApplicationHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -33,6 +42,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.learnforward.edgelearner.utils.Utilities;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,21 +50,21 @@ import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements DownloadItemTouchHelper.DownloadItemTouchHelperListener{
 
     private static final String TAG = "MainActivity";
     public static final String LIBRARY = "BOOKS";
     private static final  int HANDLE_PERM = 1;
     File booksFolder,zipFolder;
     static BookDetails bookDetails;
-    ArrayList<BookModel> books;
-    ListView listView;
+
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    SharedPreferences mPrefs;
-    CustomAdapter adapter;
     String bookCode;
 
-    ArrayList<String> library; //save downloaded book ids
+    private RecyclerView itemsListView ;
+    private ItemListAdapter itemListAdapter;
+    private ArrayList<DownloadableItem> downloadableItems;
 
     private boolean cameraPermission=false,writePermission=false;
     @Override
@@ -64,17 +74,31 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG,"onCreate");
 
         setContentView(R.layout.activity_main);
-
-        mPrefs = getPreferences(MODE_PRIVATE);
-        library = getLibrary();
-        if(!library.contains("new-001")) {
-            library.add("new-001");
-        }
+        itemsListView = findViewById(R.id.download_items_list);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
+
+        downloadableItems = DownloadItemHelper.loadDownloadItems();
+
+        itemListAdapter = new ItemListAdapter(this,
+                downloadableItems,
+                itemsListView,
+                new ItemListAdapter.OnBookClickListener() {
+            @Override
+            public void onBookClick(DownloadableItem item) {
+                if(item.getDownloadingStatus() == DownloadingStatus.EXTRACTED) {
+                    Intent intent = new Intent(MainActivity.this, BookViewActivity.class);
+                    intent.putExtra("bookId", item.getBookId());
+                    startActivity(intent);
+                }
+            }
+        });
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        itemsListView.setLayoutManager(linearLayoutManager);
+        itemsListView.setAdapter(itemListAdapter);
 
         ImageButton aboutUs = findViewById(R.id.aboutus);
         aboutUs.setOnClickListener(new View.OnClickListener() {
@@ -102,44 +126,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        listView= findViewById(R.id.list);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        Log.i(TAG,"onNewIntent");
-        if (intent != null)
-            setIntent(intent);
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.i(TAG,"onResume");
-
-        String result = getIntent().getStringExtra("result");
-        String message = getIntent().getStringExtra("message");
-        if (result!=null && result.equals("success")) {
-            if (library.indexOf(bookDetails.getBookId()) == -1) {
-                addBookToList(bookDetails.getBookId());
-                Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
-            }
-            else{
-                Snackbar.make(listView, "Book is already in the library.", Snackbar.LENGTH_LONG).show();
-            }
-        }
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onStart(){
-        super.onStart();
-        checkPermission();
         zipFolder = ApplicationHelper.zipFolder;
         if(!zipFolder.exists()){
             zipFolder.mkdirs();
@@ -150,38 +136,28 @@ public class MainActivity extends AppCompatActivity {
             booksFolder.mkdirs();
         }
 
-        loadBooks();
-        adapter = new CustomAdapter(books,getApplicationContext());
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BookModel dataModel= books.get(position);
-                Intent intent = new Intent(MainActivity.this, BookViewActivity.class);
-                intent.putExtra("bookId",dataModel.getBookId());
-                startActivity(intent);
-            }
-        });
-        Intent data = getIntent();
-        if(data.getStringExtra("result")!=null){
-            String result = data.getStringExtra("result");
-            String message = data.getStringExtra("message");
-            if (result.equals("success")) {
-                if (library.indexOf(bookDetails.getBookId()) == -1) {
-                    //save to library
-                    library.add(bookDetails.getBookId());
-                    saveLibrary();
-                    //add to adapter
-                    addBookToList(bookDetails.getBookId());
-                    Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
-                }
-                else{
-                    Snackbar.make(listView, "Book is already in the library.", Snackbar.LENGTH_LONG).show();
-                }
-            } else {
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new DownloadItemTouchHelper(0, ItemTouchHelper.LEFT, this);
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(itemsListView);
+    }
 
-                Snackbar.make(listView, message, Snackbar.LENGTH_LONG).show();
-            }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DownloadItemHelper.saveDownloadItems(itemListAdapter.getDownloadItems());
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        checkPermission();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+
+        if (isFinishing() && itemListAdapter != null) {
+            itemListAdapter.performCleanUp();
         }
     }
 
@@ -216,69 +192,27 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "Book found " + bookCode);
                             bookDetails = task.getResult().toObject(BookDetails.class);
-                            startDownloadActivity(bookDetails);
+
+                            DownloadableItem downloadableItem = new DownloadableItem();
+                            downloadableItem.setId(String.valueOf(downloadableItems.size()+1));
+                            downloadableItem.setBookId(bookDetails.getBookId());
+                            downloadableItem.setDownloadingStatus(DownloadingStatus.NOT_DOWNLOADED);
+                            downloadableItem.setBookName(bookDetails.getBookName());
+                            downloadableItem.setPages("");
+                            downloadableItem.setBookDownloadUrl(bookDetails.getDownloadUrl());
+
+                            itemListAdapter.addDownload(downloadableItem);
+                            itemListAdapter.onDownloadStarted(downloadableItem);
+
                         } else {
                             Log.d(TAG, "Failed to find Book " + bookCode);
-                            Snackbar.make(listView, "This book is not available", Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
                         }
                     }
                 });
             }
         }
-        if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-            String result = data.getStringExtra("result");
-            String message = data.getStringExtra("message");
-            if (result.equals("success")) {
-                if (library.indexOf(bookDetails.getBookId()) == -1) {
-                    addBookToList(bookDetails.getBookId());
-                    Snackbar.make(listView, "Book added to the library.", Snackbar.LENGTH_LONG).show();
-                }
-                else{
-                    Snackbar.make(listView, "Book is already in the library.", Snackbar.LENGTH_LONG).show();
-                }
-            } else {
 
-                Snackbar.make(listView, message, Snackbar.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    boolean bookExists(BookModel book){
-        boolean result = false;
-        for (BookModel lbook:books) {
-            if(lbook.getBookId().equals(book.getBookId())){
-                result =true;
-                break;
-            }
-        }
-        return result;
-    }
-
-    void addBookToList(String bookId) {
-        File bookFolder = new File(ApplicationHelper.booksFolder,bookId);
-        if(bookFolder.exists()){
-            try {
-                Book jsonBook =  (new Gson()).fromJson(new FileReader(bookFolder.getAbsolutePath()+"/book.json"),Book.class);
-                adapter.add(new BookModel(jsonBook.getId(),jsonBook.getName(),bookFolder.getAbsolutePath(), String.valueOf(jsonBook.getPages().length)));
-                adapter.notifyDataSetChanged();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    void loadBooks(){
-        books = new ArrayList<BookModel>();
-        for(String bookId:library){
-            File bookFolder = new File(ApplicationHelper.booksFolder,bookId);
-            if(bookFolder.exists()){
-                try {
-                    Book jsonBook =  (new Gson()).fromJson(new FileReader(bookFolder.getAbsolutePath()+"/book.json"),Book.class);
-                    books.add(new BookModel(jsonBook.getId(),jsonBook.getName(),bookFolder.getAbsolutePath(), String.valueOf(jsonBook.getPages().length)));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     @Override
@@ -307,6 +241,27 @@ public class MainActivity extends AppCompatActivity {
                             "The application will now exit.")
                     .setPositiveButton("OK", listener)
                     .show();
+        }
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof ItemDetailsViewHolder) {
+            final DownloadableItem  deletedItem = downloadableItems.get(viewHolder.getAdapterPosition());
+            final int deletedIndex = viewHolder.getAdapterPosition();
+            itemListAdapter.removeDownloadItem(viewHolder.getAdapterPosition());
+
+            Snackbar snackbar = Snackbar
+                    .make(itemsListView, deletedItem.getBookName()+ " removed from Library!", Snackbar.LENGTH_LONG);
+            snackbar.setAction("UNDO", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    itemListAdapter.restoreDownloadItem(deletedItem, deletedIndex);
+                }
+            });
+            snackbar.setActionTextColor(Color.YELLOW);
+            snackbar.show();
         }
     }
 
@@ -339,43 +294,5 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             ActivityCompat.requestPermissions(this, permissions, HANDLE_PERM);
         }
-    }
-
-    void startDownloadActivity(BookDetails bookDetails){
-        Intent intent = new Intent(MainActivity.this, BookDownloadActivity.class);
-        intent.putExtra("book", bookDetails);
-        startActivity(intent);
-    }
-
-    void saveLibrary(){
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(library);
-        prefsEditor.putString(LIBRARY, json);
-        prefsEditor.commit();
-    }
-    void removeBookFromLibrary(String bookId){
-        library.remove(bookId);
-        saveLibrary();
-    }
-    void clearLibrary(){
-        library.clear();
-        saveLibrary();
-    }
-
-    ArrayList<String> getLibrary(){
-        try {
-            String json = mPrefs.getString(LIBRARY, null);
-            Type type = new TypeToken<ArrayList<String>>() {
-            }.getType();
-            library = new Gson().fromJson(json, type);
-            if(library == null){
-                library=new ArrayList<String>();
-            }
-        }
-        catch (Exception e){
-            library=new ArrayList<String>();
-        }
-        return library;
     }
 }

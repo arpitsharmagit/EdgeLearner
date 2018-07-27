@@ -168,8 +168,6 @@ public class Utilities {
 
 
             }
-            File delFile=new File(zipFile);
-            delFile.delete();
         }
         catch (Exception e)
         {

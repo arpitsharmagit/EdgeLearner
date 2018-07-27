@@ -82,13 +82,13 @@
         android:layout_height="match_parent"
         android:background="#d3d3d3d3"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        <ListView
-            android:layout_below="@id/progressBarDownload"
-            android:id="@+id/list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"/>
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/download_items_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white">
+        </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
     <RelativeLayout

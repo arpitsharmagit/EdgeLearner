@@ -231,7 +231,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
 //            optionsContainer.setPadding(imgSize,0,0,0);
 //            optionsContainer.setLayoutParams(new LinearLayout.LayoutParams(
 //                    ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
-//            optionsContainer.setTag(qModel.getId());
+//            optionsContainer.setTag(qModel.getBookId());
 
             int optionCounter = 97;
             //create options
@@ -252,7 +252,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                 optionContainer.addView(optionTextView);
 
                 ImageButton optionButton = new ImageButton(this);
-//                optionButton.setId();
+//                optionButton.setBookId();
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         imgSize,imgSize);
                 params.gravity=Gravity.CENTER;
@@ -533,7 +533,7 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                         playSound(audios.getClapping());
 
                         //disable all other
-                        LinearLayout optionsContainer = (LinearLayout)v.getParent().getParent();
+                        FlexboxLayout optionsContainer = (FlexboxLayout)v.getParent().getParent();
                         for (int i=0;i<optionsContainer.getChildCount();i++){
                             LinearLayout  optionContainer =(LinearLayout) optionsContainer.getChildAt(i);
                             ImageButton optionButton = (ImageButton) optionContainer.getChildAt(1);

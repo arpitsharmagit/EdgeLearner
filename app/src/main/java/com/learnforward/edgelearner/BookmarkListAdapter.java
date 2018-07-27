@@ -41,7 +41,6 @@ public class BookmarkListAdapter extends RecyclerView.Adapter<BookmarkListAdapte
         }
     }
 
-
     public BookmarkListAdapter(Context context,
                                ArrayList<Bookmark> bookmarkList,
                                OnItemClickListener listener) {

@@ -34,7 +34,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".ScannerActivity" />
-        <activity android:name=".BookDownloadActivity" android:launchMode="singleInstance" />
         <activity android:name=".BookReaderActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".ContactUsActivity" />
