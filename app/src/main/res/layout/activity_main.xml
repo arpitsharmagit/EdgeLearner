@@ -20,7 +20,20 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <RelativeLayout
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:layout_marginBottom="?android:attr/actionBarSize"
+        app:layout_anchor="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#d3d3d3d3">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/download_items_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white">
+        </android.support.v7.widget.RecyclerView>
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -32,7 +45,7 @@
         app:srcCompat="@drawable/ic_scan" />
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="?android:attr/actionBarSize"
         android:layout_gravity="bottom"
         android:padding="5dp"
         android:id="@+id/bottomBar"

@@ -109,7 +109,7 @@ public class ChaptersActivity extends AppCompatActivity {
 
             switch (v.getId())
             {
-                case R.id.item_info:
+                case R.id.download_items_list:
                     Snackbar.make(v, "Book Details" +BookModel.getBookName(), Snackbar.LENGTH_LONG)
                             .setAction("No action", null).show();
                     break;

@@ -147,6 +147,11 @@ public class BookReaderActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                    myWebView.evaluateJavascript("$('#BGSound')[0].pause();", null);
+                } else {
+                    myWebView.loadUrl("javascript:$('#BGSound')[0].pause();");
+                }
                 onBackPressed();
                 return true;
         }
