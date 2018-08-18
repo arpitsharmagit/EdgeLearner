@@ -78,7 +78,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_help"/>
+                android:src="@drawable/ic_help"
+                android:visibility="gone"/>
         </LinearLayout>
     </RelativeLayout>
     <FrameLayout
@@ -133,7 +134,7 @@
                 android:background="@color/colorAccent"
                 />
         </LinearLayout>
-        <com.learnforward.edgelearner.paint.DrawingView
+        <com.learnsolution.edgelearner.paint.DrawingView
             android:id="@+id/draw_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

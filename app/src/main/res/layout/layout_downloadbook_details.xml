@@ -39,7 +39,7 @@
                 android:textColor="@color/colorPrimaryDark" />
         </LinearLayout>
 
-        <com.learnforward.edgelearner.downloader.BookDownloaderIconView
+        <com.learnsolution.edgelearner.downloader.BookDownloaderIconView
             android:id="@+id/icon_image_download"
             android:layout_width="40dp"
             android:layout_height="40dp"
