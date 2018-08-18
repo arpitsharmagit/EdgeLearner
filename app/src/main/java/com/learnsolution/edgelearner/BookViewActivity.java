@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -338,7 +340,9 @@ public class BookViewActivity extends AppCompatActivity {
         builder.append(bookPath).append("/pages/").append(page).append(".jpg");
         slider.setInAnimation(this,R.anim.slide_in_right);
         slider.setOutAnimation(this,R.anim.slide_out_left);
-        slider.setImageURI(Uri.fromFile(new File(builder.toString())));
+        Drawable drawable =new BitmapDrawable(this.getResources(),Utilities.loadImage(builder.toString()));
+        slider.setImageDrawable(drawable);
+        //slider.setImageURI(Uri.fromFile(new File(builder.toString())));
 
         if(mp!=null) {
             mp.pause();

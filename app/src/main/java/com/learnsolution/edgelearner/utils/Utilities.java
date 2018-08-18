@@ -27,10 +27,10 @@ import java.util.zip.ZipFile;
 
 public class Utilities {
     static String TAG ="Utilities";
-
     public static Bitmap loadImage(String imagePath){
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inDither = true;
         return BitmapFactory.decodeFile(imagePath, options);
     }
     public static int dp2px(Context context, int dp) {
