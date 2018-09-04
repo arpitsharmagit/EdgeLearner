@@ -71,8 +71,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.i(TAG,"onCreate");
-
         setContentView(R.layout.activity_main);
         itemsListView = findViewById(R.id.download_items_list);
 
@@ -190,7 +188,6 @@ public class MainActivity extends AppCompatActivity
                             dialog.dismiss();
                         }
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "Book found " + bookCode);
                             bookDetails = task.getResult().toObject(BookDetails.class);
 
                             DownloadableItem downloadableItem = new DownloadableItem();
@@ -205,7 +202,6 @@ public class MainActivity extends AppCompatActivity
                             itemListAdapter.onDownloadStarted(downloadableItem);
 
                         } else {
-                            Log.d(TAG, "Failed to find Book " + bookCode);
                             Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
                         }
                     }

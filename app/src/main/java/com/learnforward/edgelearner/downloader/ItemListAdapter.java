@@ -181,7 +181,6 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
     }
 
     public void performCleanUp() {
-        Log.d(TAG, "performing clean up of the resources");
         mItemDownloadPercentObserver.performCleanUp();
         mDownloadRequestsSubscriber.performCleanUp();
     }

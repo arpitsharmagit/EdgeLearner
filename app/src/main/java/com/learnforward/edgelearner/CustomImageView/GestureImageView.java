@@ -578,7 +578,6 @@ public class GestureImageView extends AppCompatImageView {
 //        }
 
         if (drawable == null) {
-            Log.e("GestureImageView", "resolveUri failed on bad bitmap uri: " + mUri);
             // Don't try again.
             mUri = null;
         }

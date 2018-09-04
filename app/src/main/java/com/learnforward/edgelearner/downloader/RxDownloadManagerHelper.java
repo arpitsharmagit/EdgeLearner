@@ -77,9 +77,6 @@ public class RxDownloadManagerHelper {
             percentFlowableEmiitter.onNext(downloadableItem);
             downloadableItem.setLastEmittedDownloadPercent(currentDownloadPercent);
         }
-        Log.d(TAG,
-                " Querying the DB: DownloadStatus is " + downloadStatus + " and downloadPercent is " +
-                        "" + currentDownloadPercent);
         switch (downloadStatus) {
             case DownloadManager.STATUS_FAILED:
                 break;

@@ -34,7 +34,7 @@ public class AboutActivity extends AppCompatActivity {
                 "It's Interactive.<br/><br/>" +
                 "It's Fun.<br/><br/>" +
                 "Experience learning like never before from one of India's Leading Digital Technology " +
-                "Provider Learn Forward."));
+                "Provider Learn Forward.<br/>"));
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

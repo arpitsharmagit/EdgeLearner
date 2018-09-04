@@ -43,7 +43,6 @@ public class Effects {
     }
 
     public void playSound(int soundId) {
-        Log.i(TAG, "!!!!!!!!!!!!!! playSound_1 !!!!!!!!!!");
         soundPool.play(soundId, volume, volume, priority, no_loop, normal_playback_rate);
         Toast.makeText(context, "Now you can hear sound effect!", Toast.LENGTH_LONG).show();
     }

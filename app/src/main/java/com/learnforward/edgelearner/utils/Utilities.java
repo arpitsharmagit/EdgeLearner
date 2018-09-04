@@ -82,10 +82,10 @@ public class Utilities {
             fos.close();
 
         } catch (FileNotFoundException e) {
-            Log.e("Panel", "FileNotFoundException", e);
+
         }
         catch (IOException e) {
-            Log.e("Panel", "IOEception", e);
+
         }
     }
 
@@ -96,7 +96,7 @@ public class Utilities {
         // have the object build the directory structure, if needed.
 
         if (!barcodeDirectory.exists()) {
-            Log.d(TAG, "" + barcodeDirectory.mkdirs());
+
             boolean result = barcodeDirectory.mkdirs();
             if(result == true){
 
@@ -109,7 +109,6 @@ public class Utilities {
             FileOutputStream fo = new FileOutputStream(f);
             fo.write(bytes.toByteArray());
             fo.close();
-            Log.d(TAG, "QR image Saved::" + f.getAbsolutePath());
 
             return f.getAbsolutePath();
         } catch (IOException e1) {
@@ -171,7 +170,6 @@ public class Utilities {
         }
         catch (Exception e)
         {
-            Log.e(TAG,"ERROR: "+e.getMessage());
         }
 
     }

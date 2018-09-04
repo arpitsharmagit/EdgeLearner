@@ -27,15 +27,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:layout_below="@+id/lblAddress"
-            android:id="@+id/txtAddress"
-            android:textSize="18dp"
-            android:textColor="@android:color/black"
+        <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="TextView" />
+            android:fadeScrollbars="false"
+            android:scrollIndicators="top|bottom"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbarFadeDuration="50000">
+            <TextView
+                android:layout_below="@+id/lblAddress"
+                android:id="@+id/txtAddress"
+                android:textSize="18dp"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="TextView" />
+        </ScrollView>
     </LinearLayout>
 
 </RelativeLayout>

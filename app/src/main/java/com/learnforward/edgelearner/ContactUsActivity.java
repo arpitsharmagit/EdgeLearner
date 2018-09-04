@@ -22,12 +22,14 @@ public class ContactUsActivity extends AppCompatActivity {
 
         TextView txtAddress = findViewById(R.id.txtAddress);
 
-        txtAddress.setText(Html.fromHtml("<br/><br/><b><h3>Vidya Industrial Estate</h3></b>" +
-                "Baghpat Road,<br/>" +
-                "Meerut-250 002 (Delhi-NCR) INDIA<br/>" +
-                "Toll Free: 18002701317<br/><br/>" +
-                "E: learnforwardin@gmail.com<br/>" +
-                "W: http://learnforward.in/"));
+        txtAddress.setText(Html.fromHtml("<br/><br/><b><h3>Learn Forward</h3></b>" +
+                "G-8, Narain Manzil,<br/>" +
+                "23-Barakhambha Road,<br/>" +
+                "Connaught Place,<br/>" +
+                "New Delhi-110 001<br/>" +
+                "(INDIA)<br/><br/>" +
+                "E: info@learnforward.in<br/>" +
+                "W: https://learnforward.in/"));
     }
 
     @Override
