@@ -339,9 +339,22 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
                             ViewGroup.LayoutParams.WRAP_CONTENT));
                     questionDrop.setTag(qModel.getAnswer()[i]);
                     questionDrop.setOnDragListener(this);
-                    questionDrop.setText("....................");
+
+
                     dropperPaint = questionDrop.getPaint();
-                    blankSize = getTextWidth(questionDrop.getText().toString(),questionDrop.getPaint());
+
+                    int textSize = getTextWidth(qModel.getAnswer()[i],dropperPaint);
+                    int dotSize = getTextWidth(".",dropperPaint);
+                    int noOfDots = textSize/dotSize;
+                    int sideSize = 2;
+                    int dotCount = (2*sideSize )+ noOfDots;
+
+                    StringBuilder builder = new StringBuilder();
+                    for(int j=0;j<dotCount;j++){
+                        builder.append(".");
+                    }
+
+                    questionDrop.setText(builder.toString());
                     questionContainer.addView(questionDrop);
                 }
             }
@@ -446,9 +459,20 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             questionDrop.setLayoutParams(textParams);
             questionDrop.setTag(qModel.getAnswer()[0]);
             questionDrop.setOnDragListener(this);
-            questionDrop.setText("....................");
             dropperPaint = questionDrop.getPaint();
-            blankSize = getTextWidth(questionDrop.getText().toString(),questionDrop.getPaint());
+
+            int textSize = getTextWidth(qModel.getAnswer()[0],dropperPaint);
+            int dotSize = getTextWidth(".",dropperPaint);
+            int noOfDots = textSize/dotSize;
+            int sideSize = 2;
+            int dotCount = (2*sideSize )+ noOfDots;
+
+            StringBuilder builder2 = new StringBuilder();
+            for(int j=0;j<dotCount;j++){
+                builder2.append(".");
+            }
+
+            questionDrop.setText(builder2.toString());
             questionContainer.addView(questionDrop);
 
             questionsContainer.addView(questionContainer);
@@ -617,27 +641,21 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
             case DragEvent.ACTION_DROP:
                 v.setBackgroundColor(Color.TRANSPARENT);
                 String dragVal = event.getClipData().getItemAt(0).getText().toString();
-                String viewVal = ((TextView) v).getText().toString();
+                TextView textBox = (TextView) v;
                 String answer= v.getTag().toString();
                 if(answer.equals(dragVal)){
-                    int replaceSize = getTextWidth(dragVal,dropperPaint);
-                    int sideSize = (blankSize - replaceSize)/2;
-                    int sideDotCount = (int)(sideSize/7);
+
+
                     StringBuilder builder = new StringBuilder();
-                    for(int j=0;j<sideDotCount;j++){
-                        builder.append(".");
-                    }
+                    builder.append("..");
                     builder.append(dragVal);
-                    for(int j=0;j<sideDotCount;j++){
-                        builder.append(".");
-                    }
+                    builder.append("..");
 
                     TextView textView = (TextView) v;
                     textView.setTextColor(Color.argb(255,0,128,0));
-                    viewVal = viewVal.replace("....................",builder.toString());
                     playSound(audios.getCorrect());
                     playSound(audios.getClapping());
-                    textView.setText(viewVal);
+                    textView.setText(builder.toString());
                     textView.setOnDragListener(null);
                 }
                 else{
