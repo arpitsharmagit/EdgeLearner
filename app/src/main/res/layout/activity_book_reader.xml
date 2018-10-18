@@ -82,7 +82,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="10dp"
             android:gravity="center_horizontal"
-            android:text="Copyright © Learning Solutions"
+            android:text="Copyright © Vishal Prakashan Mandir"
             android:textColor="@color/colorWhite"
             android:textSize="14dp" />
     </RelativeLayout>

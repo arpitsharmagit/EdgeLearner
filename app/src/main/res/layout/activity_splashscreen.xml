@@ -13,7 +13,7 @@ tools:context=".SplashscreenActivity">
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:scaleType="fitXY"
-        android:src="@drawable/splash1" />
+        android:src="@drawable/splash" />
 
     <TextView
         android:layout_width="fill_parent"
@@ -21,7 +21,7 @@ tools:context=".SplashscreenActivity">
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
         android:gravity="center_horizontal"
-        android:text="Copyright © Learning Solutions"
+        android:text="Copyright © Vishal Prakashan Mandir"
         android:textColor="@color/colorWhite"
         android:textSize="12dp" />
 

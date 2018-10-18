@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner;
+package com.vishalprakashan.edgelearner;
 
 import android.content.Context;
 import android.support.design.widget.Snackbar;
@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.anuprakashan.edgelearner.Models.BookModel;
+import com.vishalprakashan.edgelearner.Models.BookModel;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner;
+package com.vishalprakashan.edgelearner;
 
 import android.app.Activity;
 import android.content.Intent;

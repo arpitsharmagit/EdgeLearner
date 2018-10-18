@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner.utils;
+package com.vishalprakashan.edgelearner.utils;
 
 import android.app.Application;
 import android.content.Context;

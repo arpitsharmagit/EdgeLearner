@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner;
+package com.vishalprakashan.edgelearner;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,10 +14,10 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.anuprakashan.edgelearner.Models.BookDetails;
-import com.anuprakashan.edgelearner.utils.ApplicationHelper;
+import com.vishalprakashan.edgelearner.Models.BookDetails;
+import com.vishalprakashan.edgelearner.utils.ApplicationHelper;
 
-import com.anuprakashan.edgelearner.utils.Utilities;
+import com.vishalprakashan.edgelearner.utils.Utilities;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner;
+package com.vishalprakashan.edgelearner;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,12 +23,10 @@ public class ContactUsActivity extends AppCompatActivity {
         TextView txtTelephone = findViewById(R.id.txtTelephone);
         TextView txtEmail = findViewById(R.id.txtEmail);
 
-        txtAddress.setText("Learning Solutions\n" +
-                "807/2, Sant Vihar, Old Vidya Prakashan Mandir\n" +
-                "Office,\n" +
-                "Transport Nagar, Meerut City.\n");
-        txtTelephone.setText("0121-3192323, 0121-2401096");
-        txtEmail.setText("anuprakashanmandir.co.in");
+        txtAddress.setText("VIJAY NAGAR, W.K. ROAD, MEERUT (NCR) INDIA - 250001");
+        txtTelephone.setText("0121-2648776, 4031792");
+        txtEmail.setText("info@vishalprakashanmandir.com\n" +
+                "vishalprakashanmandir@gmail.com");
     }
 
     @Override

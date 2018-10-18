@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner;
+package com.vishalprakashan.edgelearner;
 
 import android.Manifest;
 import android.app.Activity;
@@ -22,9 +22,9 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.anuprakashan.edgelearner.Models.BookDetails;
-import com.anuprakashan.edgelearner.Models.BookModel;
-import com.anuprakashan.edgelearner.utils.ApplicationHelper;
+import com.vishalprakashan.edgelearner.Models.BookDetails;
+import com.vishalprakashan.edgelearner.Models.BookModel;
+import com.vishalprakashan.edgelearner.utils.ApplicationHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;

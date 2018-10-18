@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner.utils;
+package com.vishalprakashan.edgelearner.utils;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -8,7 +8,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.anuprakashan.edgelearner.Models.BookDetails;
+import com.vishalprakashan.edgelearner.Models.BookDetails;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

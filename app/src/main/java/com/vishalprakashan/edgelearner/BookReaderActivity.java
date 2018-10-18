@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner;
+package com.vishalprakashan.edgelearner;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +16,7 @@ import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.anuprakashan.edgelearner.utils.ApplicationHelper;
+import com.vishalprakashan.edgelearner.utils.ApplicationHelper;
 
 import java.io.File;
 

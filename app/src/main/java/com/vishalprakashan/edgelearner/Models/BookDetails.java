@@ -1,4 +1,4 @@
-package com.anuprakashan.edgelearner.Models;
+package com.vishalprakashan.edgelearner.Models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

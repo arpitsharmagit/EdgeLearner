@@ -77,7 +77,7 @@
             android:textColor="@android:color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Website" />
+            android:text="Email" />
         <TextView
             android:layout_below="@+id/lblAddress"
             android:id="@+id/txtEmail"

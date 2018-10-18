@@ -4,7 +4,7 @@ apply plugin: 'com.google.gms.google-services'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.learningsolutions.edgelearner"
+        applicationId "com.vishalprakashan.edgelearner"
         minSdkVersion 23
         targetSdkVersion 27
         versionCode 1

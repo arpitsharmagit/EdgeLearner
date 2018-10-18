@@ -8,20 +8,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:5490793951:android:b6a7c6fdbf0e2a5a",
+        "mobilesdk_app_id": "1:5490793951:android:9858b7df2f6e0866",
         "android_client_info": {
-          "package_name": "com.learningsolutions.edgelearner"
+          "package_name": "com.vishalprakashan.edgelearner"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "5490793951-f23tc5517ei21j2f9ajeallg3d21cbic.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.learningsolutions.edgelearner",
-            "certificate_hash": "c0a80c0dbf2be9e83bfe32397165039cb60f0617"
-          }
-        },
         {
           "client_id": "5490793951-1bvc9q85troaq84ulub9ma0mdgbp3lt1.apps.googleusercontent.com",
           "client_type": 3
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "5490793951-1bvc9q85troaq84ulub9ma0mdgbp3lt1.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2
