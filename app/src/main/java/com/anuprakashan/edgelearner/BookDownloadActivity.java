@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 
 public class BookDownloadActivity extends AppCompatActivity {
 
@@ -70,15 +71,13 @@ public class BookDownloadActivity extends AppCompatActivity {
         bookDetails = data.getParcelable("book");
 
         if(bookDetails.getBookId()!=null && bookDetails.getDownloadUrl() !=null){
-            txtBookSize.setText("Download Size: "+bookDetails.getSize());
+            txtBookSize.setText("Download Size: Calculating...");
             txtBookName.setText(bookDetails.getBookName());
             File file = new File(ApplicationHelper.zipFolder,bookDetails.getBookId()+".zip") ;
             if(file.exists()){
                 file.delete();
             }
-            else{
-                startDownload();
-            }
+            startDownload();
         }
         else{
             sendResult(ERROR,"Download url is Empty.");
@@ -122,11 +121,31 @@ public class BookDownloadActivity extends AppCompatActivity {
         private Context context;
         private PowerManager.WakeLock mWakeLock;
         File file;
+        String fileSize;
+        boolean sizeKnown=false;
 
         public DownloaderTask(Context context) {
             this.context = context;
         }
+        public String getStringSizeLengthFile(long size) {
 
+            DecimalFormat df = new DecimalFormat("0.00");
+
+            float sizeKb = 1024.0f;
+            float sizeMo = sizeKb * sizeKb;
+            float sizeGo = sizeMo * sizeKb;
+            float sizeTerra = sizeGo * sizeKb;
+
+
+            if(size < sizeMo)
+                return df.format(size / sizeKb)+ " Kb";
+            else if(size < sizeGo)
+                return df.format(size / sizeMo) + " Mb";
+            else if(size < sizeTerra)
+                return df.format(size / sizeGo) + " Gb";
+
+            return "";
+        }
         @Override
         protected String doInBackground(String... sUrl) {
             String finalStatus = "";
@@ -136,6 +155,7 @@ public class BookDownloadActivity extends AppCompatActivity {
             OutputStream output = null;
             HttpURLConnection connection = null;
             String fileName = bookId +".zip";
+
             file = new File(ApplicationHelper.zipFolder,fileName);
             try {
                 URL url = new URL(downloadUrl);
@@ -153,6 +173,8 @@ public class BookDownloadActivity extends AppCompatActivity {
 
                 int fileLength = connection.getContentLength();
 
+                fileSize = getStringSizeLengthFile(fileLength);
+
                 input = connection.getInputStream();
                 output = new FileOutputStream(file);
 
@@ -169,7 +191,14 @@ public class BookDownloadActivity extends AppCompatActivity {
                     total += count;
                     // publishing the progress....
                     if (fileLength > 0) // only if total length is known
+                    {
+                        sizeKnown =true;
                         publishProgress((int) (total * 100 / fileLength));
+                    }
+                    else {
+                        publishProgress((int)total);
+                        sizeKnown =false;
+                    }
                     output.write(data, 0, count);
                 }
                 finalStatus = file.getAbsolutePath();
@@ -204,8 +233,16 @@ public class BookDownloadActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             super.onProgressUpdate(progress);
-            progressBar.setProgress(progress[0]);
-            txtStatus.setText("Downloading..."+ progress[0]+"%");
+            if(sizeKnown) {
+                progressBar.setProgress(progress[0]);
+                txtBookSize.setText("Download Size: " + fileSize);
+                txtStatus.setText("Downloading..." + progress[0] + "%");
+            }
+            else {
+                progressBar.setIndeterminate(true);
+                txtBookSize.setText("");
+                txtStatus.setText("Downloading..." + getStringSizeLengthFile(progress[0]));
+            }
         }
 
         @Override
