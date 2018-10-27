@@ -21,8 +21,8 @@ tools:context=".SplashscreenActivity">
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
         android:gravity="center_horizontal"
-        android:text="Copyright © Anu Prakashan Mandir"
-        android:textColor="@color/colorAccent"
+        android:text="Copyright © Vishal Prakashan Mandir"
+        android:textColor="@color/colorWhite"
         android:textSize="12dp" />
 
 </RelativeLayout>
