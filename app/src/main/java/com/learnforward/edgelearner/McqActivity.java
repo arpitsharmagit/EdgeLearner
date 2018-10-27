@@ -206,15 +206,36 @@ import static android.support.v4.content.res.ResourcesCompat.getFont;
 
             for (Mcq qModel : question.getMcq()) {
 
+                LinearLayout questionTextContainer = new LinearLayout(this);
+                questionTextContainer.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+
                 //create question view
                 String counter = questionCounter + ". ";
-                String ques = counter + qModel.getQuestion();
+                String ques = qModel.getQuestion();
+
+                //counter textview
+                TextView questionCounterView = new TextView(this);
+                questionCounterView.setTextColor(Color.BLACK);
+                questionCounterView.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+                questionCounterView.setTypeface(questionCounterView.getTypeface(), Typeface.BOLD);
+                questionCounterView.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                questionCounterView.setText(counter);
+
+                //actual question text
                 TextView questionView = new TextView(this);
-                //            questionView.setPadding(padding10,0,0,0);
                 questionView.setTextColor(Color.BLACK);
                 questionView.setLayoutParams(new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                questionView.setText(makeSectionOfTextBold(ques, counter));
+                questionView.setText(ques);
+
+                //Add to linear View
+                questionTextContainer.addView(questionCounterView);
+                questionTextContainer.addView(questionView);
+
 
                 TextView questionTitle = child.findViewById(R.id.questiontitle);
                 questionTitle.setText(question.getTitle());
@@ -250,7 +271,7 @@ import static android.support.v4.content.res.ResourcesCompat.getFont;
                     optionTextView.setPadding(0, 0, imgSize, 0);
                     optionTextView.setTextColor(Color.BLACK);
                     optionTextView.setLayoutParams(new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,0.8f));
                     optionTextView.setText(makeSectionOfTextBold(optionStr, optCounterStr));
                     optionContainer.addView(optionTextView);
 
@@ -276,7 +297,7 @@ import static android.support.v4.content.res.ResourcesCompat.getFont;
                 mainContainer.setLayoutParams(new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 mainContainer.setOrientation(LinearLayout.VERTICAL);
-                mainContainer.addView(questionView);
+                mainContainer.addView(questionTextContainer);
                 mainContainer.addView(optionsContainer);
                 questionsContainer.addView(mainContainer);
                 questionCounter++;

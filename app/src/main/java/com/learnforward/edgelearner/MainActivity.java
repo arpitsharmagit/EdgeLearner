@@ -163,49 +163,50 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            bookCode = data.getStringExtra("code");
-            if (bookCode != null) {
-                if(URLUtil.isValidUrl(bookCode)){
-                    //process extract code
-                    int startIndex = bookCode.lastIndexOf("/")+1;
-                    int endIndex = bookCode.lastIndexOf(".");
-                    if(endIndex>startIndex) {
-                        bookCode = bookCode.substring(startIndex, endIndex);
-                    }
-                    else{
-                        bookCode = bookCode.substring(startIndex);
-                    }
+            String bookUrl = data.getStringExtra("code");
+            if (bookUrl != null && URLUtil.isValidUrl(bookUrl)) {
+                //process extract code
+                int startIndex = bookUrl.lastIndexOf("/") + 1;
+                int endIndex = bookUrl.lastIndexOf(".");
+                if (endIndex > startIndex) {
+                    bookCode = bookUrl.substring(startIndex, endIndex);
+                } else {
+                    bookCode = bookUrl.substring(startIndex);
                 }
-                final ProgressDialog dialog = new ProgressDialog(this);
-                dialog.setMessage("Searching book...");
-                dialog.setCancelable(false);
-                dialog.show();
-                DocumentReference docRef = db.collection("books").document(bookCode);
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (dialog.isShowing()) {
-                            dialog.dismiss();
-                        }
-                        if (task.isSuccessful()) {
-                            bookDetails = task.getResult().toObject(BookDetails.class);
+                DownloadableItem downloadableItem = new DownloadableItem();
+                downloadableItem.setId(String.valueOf(downloadableItems.size() + 1));
+                downloadableItem.setBookId(bookCode);
+                downloadableItem.setDownloadingStatus(DownloadingStatus.NOT_DOWNLOADED);
+                downloadableItem.setBookName("Processing Book...");
+                downloadableItem.setPages("");
+                downloadableItem.setBookDownloadUrl(bookUrl);
 
-                            DownloadableItem downloadableItem = new DownloadableItem();
-                            downloadableItem.setId(String.valueOf(downloadableItems.size()+1));
-                            downloadableItem.setBookId(bookDetails.getBookId());
-                            downloadableItem.setDownloadingStatus(DownloadingStatus.NOT_DOWNLOADED);
-                            downloadableItem.setBookName(bookDetails.getBookName());
-                            downloadableItem.setPages("");
-                            downloadableItem.setBookDownloadUrl(bookDetails.getDownloadUrl());
-
-                            itemListAdapter.addDownload(downloadableItem);
-                            itemListAdapter.onDownloadStarted(downloadableItem);
-
-                        } else {
-                            Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                itemListAdapter.addDownload(downloadableItem);
+                itemListAdapter.onDownloadStarted(downloadableItem);
+//                final ProgressDialog dialog = new ProgressDialog(this);
+//                dialog.setMessage("Searching book...");
+//                dialog.setCancelable(false);
+//                dialog.show();
+//                DocumentReference docRef = db.collection("books").document(bookCode);
+//                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if (dialog.isShowing()) {
+//                            dialog.dismiss();
+//                        }
+//                        if (task.isSuccessful()) {
+//                            bookDetails = task.getResult().toObject(BookDetails.class);
+//
+//
+//
+//                        } else {
+//                            Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
+//                        }
+//                    }
+//                });
+            }
+            else{
+                Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
             }
         }
 

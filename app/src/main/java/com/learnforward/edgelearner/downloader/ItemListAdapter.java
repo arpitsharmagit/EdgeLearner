@@ -130,6 +130,7 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
         downloadableItem.setDownloadingStatus(DownloadingStatus.EXTRACTED);
         Book bookData =getBook(downloadableItem);
         if(bookData!=null){
+            downloadableItem.setBookName(bookData.getName());
             downloadableItem.setPages("Total Pages: "+String.valueOf(bookData.getPages().length));
         }
         DownloadItemHelper.saveDownloadItems(itemsList);
