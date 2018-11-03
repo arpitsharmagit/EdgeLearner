@@ -331,7 +331,7 @@ import static android.support.v4.content.res.ResourcesCompat.getFont;
 
                 String counter = questionCounter + ". ";
                 String ques = counter + qModel.getQuestion();
-                String[] questionParts = ques.split("@#", 4);
+                String[] questionParts = ques.split("@#");
 
                 FlexboxLayout questionContainer = new FlexboxLayout(this);
                 questionContainer.setAlignContent(AlignContent.FLEX_START);
@@ -624,11 +624,11 @@ import static android.support.v4.content.res.ResourcesCompat.getFont;
 
         void playSound(String audio) {
             Uri uri = Uri.fromFile(new File(dataPath, audio));
-            //        if(mp!=null){
-            //            mp.release();
-            //            mp = null;
-            //        }
-            MediaPlayer mp = new MediaPlayer();
+            if(mp!=null){
+                mp.release();
+                mp = null;
+            }
+            mp = new MediaPlayer();
             mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
                 mp.setDataSource(getApplicationContext(), uri);
@@ -636,8 +636,10 @@ import static android.support.v4.content.res.ResourcesCompat.getFont;
                 mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
-                        mp.release();
-                        mp = null;
+                        if(mp!=null) {
+                            mp.release();
+                            mp = null;
+                        }
                     }
                 });
                 mp.start();
