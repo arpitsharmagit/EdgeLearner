@@ -167,6 +167,10 @@ public class Utilities {
 
 
             }
+            boolean isDeleted = file.delete();
+            if(isDeleted){
+                Log.i(TAG,"Zip Removed");
+            }
         }
         catch (Exception e)
         {

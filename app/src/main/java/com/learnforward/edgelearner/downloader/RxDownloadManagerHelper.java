@@ -39,6 +39,10 @@ public class RxDownloadManagerHelper {
         return downloadManager.enqueue(request);
     }
 
+    public  static int cancelDownload(DownloadManager downloadManager,DownloadableItem downloadableItem){
+        return downloadManager.remove(downloadableItem.getDownloadId());
+    }
+
     /**
      * TODO anshul.jain: Manage cases of failure.
      * This method will be called upon every 'x' milliseconds to know the percentage of a download.
@@ -79,6 +83,7 @@ public class RxDownloadManagerHelper {
         }
         switch (downloadStatus) {
             case DownloadManager.STATUS_FAILED:
+                downloadableItem.setBookName("Download Failed");
                 break;
 
             case DownloadManager.STATUS_SUCCESSFUL:

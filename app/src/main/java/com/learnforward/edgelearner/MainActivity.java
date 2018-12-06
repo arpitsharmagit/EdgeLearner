@@ -44,6 +44,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.learnforward.edgelearner.utils.Utilities;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -173,6 +175,13 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     bookCode = bookUrl.substring(startIndex);
                 }
+
+                File bookFolder = new File(ApplicationHelper.booksFolder+"/"+ bookCode);
+                if(bookFolder.exists()){
+                    Snackbar.make(itemsListView, "This book is already in library", Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+
                 DownloadableItem downloadableItem = new DownloadableItem();
                 downloadableItem.setId(String.valueOf(downloadableItems.size() + 1));
                 downloadableItem.setBookId(bookCode);
@@ -182,7 +191,7 @@ public class MainActivity extends AppCompatActivity
                 downloadableItem.setBookDownloadUrl(bookUrl);
 
                 itemListAdapter.addDownload(downloadableItem);
-                itemListAdapter.onDownloadStarted(downloadableItem);
+                //itemListAdapter.onDownloadStarted(downloadableItem);
 //                final ProgressDialog dialog = new ProgressDialog(this);
 //                dialog.setMessage("Searching book...");
 //                dialog.setCancelable(false);
@@ -246,6 +255,7 @@ public class MainActivity extends AppCompatActivity
         if (viewHolder instanceof ItemDetailsViewHolder) {
             final DownloadableItem  deletedItem = downloadableItems.get(viewHolder.getAdapterPosition());
             final int deletedIndex = viewHolder.getAdapterPosition();
+
             itemListAdapter.removeDownloadItem(viewHolder.getAdapterPosition());
 
             Snackbar snackbar = Snackbar

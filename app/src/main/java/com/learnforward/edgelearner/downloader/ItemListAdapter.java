@@ -14,9 +14,12 @@ import com.learnforward.edgelearner.R;
 import com.learnforward.edgelearner.utils.ApplicationHelper;
 import com.learnforward.edgelearner.utils.Utilities;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -97,12 +100,11 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
 
     @Override
     public void onDownloadStarted(DownloadableItem downloadableItem) {
-        //Increment the current number of downloads by 1
         currentDownloadsCount++;
         String downloadUrl = downloadableItem.getBookDownloadUrl();
         String savePath = downloadableItem.getBookZipPath();
-        File zipBook = new File(savePath.replace("file:///",""));
-        if(zipBook.exists()) {
+        File zipBook = new File(savePath.replace("file:///", ""));
+        if (zipBook.exists()) {
             zipBook.delete();
         }
         long downloadId =
@@ -157,11 +159,28 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
             itemsList.add(newItem);
             notifyItemInserted(itemsList.indexOf(newItem));
             DownloadItemHelper.saveDownloadItems(itemsList);
+
+            onDownloadEnqueued(newItem);
         }
     }
 
     public void removeDownloadItem(int position) {
+        DownloadableItem item = itemsList.get(position);
+        File dir = new File(item.getBookPath());
+        try {
+            if(dir.exists()) {
+                FileUtils.deleteDirectory(dir);
+                Log.i(TAG,"Dir Removed");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         itemsList.remove(position);
+
+        if(item.getDownloadingStatus() == DownloadingStatus.IN_PROGRESS){
+            RxDownloadManagerHelper.cancelDownload(downloadManager,item);
+        }
+
         notifyItemRemoved(position);
         DownloadItemHelper.saveDownloadItems(itemsList);
     }

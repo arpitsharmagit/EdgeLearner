@@ -40,6 +40,7 @@ import com.takusemba.spotlight.Spotlight;
 import com.takusemba.spotlight.shape.Circle;
 import com.takusemba.spotlight.target.SimpleTarget;
 
+import org.apache.commons.io.FileUtils;
 import org.xdty.preference.colorpicker.ColorPickerDialog;
 import org.xdty.preference.colorpicker.ColorPickerSwatch;
 
@@ -88,6 +89,8 @@ public class BookViewActivity extends AppCompatActivity {
     private Handler mHandler;
     private Runnable mRunnable;
     boolean isPlaying =false,isAudioVisible=false,isBookmarked=false,isZoom=false,isComment=false,isSpotlight=false;
+
+    boolean isPaintFreeHand=false,isPaintBox=false,isPaintText=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -507,59 +510,111 @@ public class BookViewActivity extends AppCompatActivity {
         btnPen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(drawingView.getVisibility() == View.GONE){
-                    String page = book.getPages()[currPage];
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(bookPath)
-                            .append("/pages/")
-                            .append(page)
-                            .append("paint")
-                            .append(".png");
-                    drawingView.setBitmap(builder.toString());
-                    drawingView.setVisibility(View.VISIBLE);
-                }
-                drawingView.setDrawType(DrawingView.ShapeFreehand);
-                btnRemove.setBackgroundColor(grey);
-                btnPen.setBackgroundColor(grey);
-                btnRectangle.setBackgroundColor(transparent);
-            }
-        });
-        btnRectangle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(drawingView.getVisibility() == View.GONE){
-                    String page = book.getPages()[currPage];
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(bookPath)
-                            .append("/pages/")
-                            .append(page)
-                            .append("paint")
-                            .append(".png");
-                    drawingView.setBitmap(builder.toString());
-                    drawingView.setVisibility(View.VISIBLE);
-                }
-                drawingView.setDrawType(DrawingView.ShapeRect);
-                btnRemove.setBackgroundColor(grey);
-                btnRectangle.setBackgroundColor(grey);
-                btnPen.setBackgroundColor(transparent);
-            }
-        });
-        btnErase.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawingView.clear();
                 String page = book.getPages()[currPage];
                 StringBuilder builder = new StringBuilder();
                 builder.append(bookPath)
                         .append("/pages/")
                         .append(page)
                         .append("paint")
+                        .append("freehand")
                         .append(".png");
-                drawingView.savePaint(builder.toString());
+                if(isPaintFreeHand){
+                    drawingView.savePaint(builder.toString());
+                    drawingView.clear();
+                    btnPen.setBackgroundColor(transparent);
+                    btnErase.setBackgroundColor(transparent);
+                    drawingView.setVisibility(View.GONE);
+                    isPaintFreeHand=false;
+                }
+                else {
+                    drawingView.clear();
+                    drawingView.setDrawType(DrawingView.ShapeFreehand);
+                    drawingView.setBitmap(builder.toString());
+                    drawingView.setVisibility(View.VISIBLE);
+                    btnPen.setBackgroundColor(grey);
+                    btnErase.setBackgroundColor(grey);
+                    isPaintFreeHand=true;
+                }
+            }
+        });
+        btnRectangle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String page = book.getPages()[currPage];
+                StringBuilder builder = new StringBuilder();
+                builder.append(bookPath)
+                        .append("/pages/")
+                        .append(page)
+                        .append("paint")
+                        .append("box")
+                        .append(".png");
+                if(isPaintBox){
+                    drawingView.savePaint(builder.toString());
+                    drawingView.clear();
+                    btnRectangle.setBackgroundColor(transparent);
+                    btnErase.setBackgroundColor(transparent);
+                    drawingView.setVisibility(View.GONE);
+                    isPaintBox=false;
+                }
+                else {
+                    drawingView.clear();
+                    drawingView.setDrawType(DrawingView.ShapeRect);
+                    drawingView.setBitmap(builder.toString());
+                    drawingView.setVisibility(View.VISIBLE);
+                    btnRectangle.setBackgroundColor(grey);
+                    btnErase.setBackgroundColor(grey);
+                    isPaintBox=true;
+                }
+            }
+        });
+        btnErase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String page = book.getPages()[currPage];
+                StringBuilder builder = new StringBuilder();
+                drawingView.setOnTouchListener(null);
+                if(isPaintText){
+                    builder.append(bookPath)
+                            .append("/pages/")
+                            .append(page)
+                            .append("paint")
+                            .append("text")
+                            .append(".png");
+                    File fdelete = new File(builder.toString());
+                    if (fdelete.exists()) {
+                        fdelete.delete();
+                    }
+                    btnEditText.setBackgroundColor(transparent);
+                }
+                if(isPaintBox){
+                    builder.append(bookPath)
+                            .append("/pages/")
+                            .append(page)
+                            .append("paint")
+                            .append("box")
+                            .append(".png");
+                    File fdelete = new File(builder.toString());
+                    if (fdelete.exists()) {
+                        fdelete.delete();
+                    }
+                    btnRectangle.setBackgroundColor(transparent);
+                }
+                if(isPaintFreeHand){
+                    builder.append(bookPath)
+                            .append("/pages/")
+                            .append(page)
+                            .append("paint")
+                            .append("freehand")
+                            .append(".png");
+                    File fdelete = new File(builder.toString());
+                    if (fdelete.exists()) {
+                        fdelete.delete();
+                    }
+                    btnPen.setBackgroundColor(transparent);
+                }
+                drawingView.clear();
                 drawingView.setVisibility(View.GONE);
-                btnRemove.setBackgroundColor(transparent);
-                btnPen.setBackgroundColor(transparent);
-                btnRectangle.setBackgroundColor(transparent);
+                btnErase.setBackgroundColor(transparent);
             }
         });
         btnRemove.setOnClickListener(new View.OnClickListener() {
@@ -567,13 +622,44 @@ public class BookViewActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String page = book.getPages()[currPage];
                 StringBuilder builder = new StringBuilder();
+                drawingView.setOnTouchListener(null);
                 builder.append(bookPath)
                         .append("/pages/")
                         .append(page)
                         .append("paint")
+                        .append("text")
                         .append(".png");
-                drawingView.savePaint(builder.toString());
+                File fdelete = new File(builder.toString());
+                if (fdelete.exists()) {
+                    fdelete.delete();
+                }
+
+                builder.append(bookPath)
+                        .append("/pages/")
+                        .append(page)
+                        .append("paint")
+                        .append("box")
+                        .append(".png");
+                fdelete = new File(builder.toString());
+                if (fdelete.exists()) {
+                    fdelete.delete();
+                }
+
+                builder.append(bookPath)
+                        .append("/pages/")
+                        .append(page)
+                        .append("paint")
+                        .append("freehand")
+                        .append(".png");
+                fdelete = new File(builder.toString());
+                if (fdelete.exists()) {
+                    fdelete.delete();
+                }
+
+                drawingView.clear();
                 drawingView.setVisibility(View.GONE);
+                btnErase.setBackgroundColor(transparent);
+                btnEditText.setBackgroundColor(transparent);
                 btnRemove.setBackgroundColor(transparent);
                 btnPen.setBackgroundColor(transparent);
                 btnRectangle.setBackgroundColor(transparent);
@@ -697,24 +783,22 @@ public class BookViewActivity extends AppCompatActivity {
         btnEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(isComment){
-                    String page = book.getPages()[currPage];
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(bookPath)
-                            .append("/pages/")
-                            .append(page)
-                            .append("paint")
-                            .append(".png");
+                String page = book.getPages()[currPage];
+                StringBuilder builder = new StringBuilder();
+                builder.append(bookPath)
+                        .append("/pages/")
+                        .append(page)
+                        .append("paint")
+                        .append("text")
+                        .append(".png");
+                if(isPaintText){
                     drawingView.savePaint(builder.toString());
                     drawingView.setVisibility(View.GONE);
-                    btnRemove.setBackgroundColor(transparent);
-
-                    drawingView.setDrawType(DrawingView.ShapeFreehand);
-
+                    drawingView.clear();
+                    btnErase.setBackgroundColor(transparent);
                     btnEditText.setBackgroundColor(transparent);
                     drawingView.setOnTouchListener(null);
-                    isComment =false;
+                    isPaintText =false;
                 }
                 else{
                     final Dialog commentDialog = new Dialog(BookViewActivity.this);
@@ -730,6 +814,8 @@ public class BookViewActivity extends AppCompatActivity {
                             commentDialog.dismiss();
                         }
                     });
+                    drawingView.setBitmap(builder.toString());
+                    drawingView.setDrawType(DrawingView.ShapeText);
                     drawingView.setOnTouchListener(new View.OnTouchListener() {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
@@ -747,11 +833,10 @@ public class BookViewActivity extends AppCompatActivity {
                             return false;
                         }
                     });
-                    btnRemove.setBackgroundColor(grey);
-                    drawingView.setVisibility(View.VISIBLE);
-                    drawingView.setDrawType(DrawingView.ShapeText);
+                    btnErase.setBackgroundColor(grey);
                     btnEditText.setBackgroundColor(grey);
-                    isComment =true;
+                    drawingView.setVisibility(View.VISIBLE);
+                    isPaintText =true;
                 }
             }
         });
@@ -817,7 +902,7 @@ public class BookViewActivity extends AppCompatActivity {
                         pageNo--;
                         gotoPage(pageNo);
                         drawingView.setVisibility(View.GONE);
-                        btnRemove.setBackgroundColor(transparent);
+                        btnErase.setBackgroundColor(transparent);
                         btnPen.setBackgroundColor(transparent);
 
 
