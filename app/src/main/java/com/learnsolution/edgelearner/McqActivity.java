@@ -163,6 +163,9 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         if(question.getType().equals("ddq")){
             loadDdqView(question);
         }
+        if(question.getType().equals("ddqImg")){
+            loadDdqViewImg(question);
+        }
     }
     void goNext(){
         currentQuestion++;
@@ -182,6 +185,9 @@ public class McqActivity extends AppCompatActivity implements View.OnClickListen
         }
         if(question.getType().equals("ddq")){
             loadDdqView(question);
+        }
+        if(question.getType().equals("ddqImg")){
+            loadDdqViewImg(question);
         }
     }
 
