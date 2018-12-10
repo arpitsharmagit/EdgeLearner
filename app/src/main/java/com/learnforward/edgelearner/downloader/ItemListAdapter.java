@@ -2,6 +2,7 @@ package com.learnforward.edgelearner.downloader;
 
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class ItemListAdapter extends RecyclerView.Adapter implements
         ItemDownloadCallback, ItemPercentCallback {
@@ -36,6 +39,7 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
     private final DownloadRequestsSubscriber mDownloadRequestsSubscriber;
     private final WeakReference<Context> contextWeakReference;
     private final RecyclerView recyclerView;
+    SharedPreferences mPrefs;
 
     private OnBookClickListener listener;
 
@@ -50,6 +54,7 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
         this.contextWeakReference = new WeakReference(context);
         this.recyclerView = recyclerView;
         this.listener = listener;
+        mPrefs = context.getSharedPreferences("pref",MODE_PRIVATE);
 
         //Observable for percent of individual downloads.
         mItemDownloadPercentObserver = new ItemDownloadPercentObserver(this);
@@ -135,7 +140,7 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
             downloadableItem.setBookName(bookData.getName());
             downloadableItem.setPages("Total Pages: "+String.valueOf(bookData.getPages().length));
         }
-        DownloadItemHelper.saveDownloadItems(itemsList);
+        DownloadItemHelper.saveDownloadItems(mPrefs,itemsList);
         updateDownloadableItem(downloadableItem);
     }
     Book getBook(DownloadableItem book){
@@ -158,7 +163,7 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
         if(searchedItem ==null) {
             itemsList.add(newItem);
             notifyItemInserted(itemsList.indexOf(newItem));
-            DownloadItemHelper.saveDownloadItems(itemsList);
+            DownloadItemHelper.saveDownloadItems(mPrefs,itemsList);
 
             onDownloadEnqueued(newItem);
         }
@@ -166,15 +171,6 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
 
     public void removeDownloadItem(int position) {
         DownloadableItem item = itemsList.get(position);
-        File dir = new File(item.getBookPath());
-        try {
-            if(dir.exists()) {
-                FileUtils.deleteDirectory(dir);
-                Log.i(TAG,"Dir Removed");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         itemsList.remove(position);
 
         if(item.getDownloadingStatus() == DownloadingStatus.IN_PROGRESS){
@@ -182,13 +178,13 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
         }
 
         notifyItemRemoved(position);
-        DownloadItemHelper.saveDownloadItems(itemsList);
+        DownloadItemHelper.saveDownloadItems(mPrefs,itemsList);
     }
 
     public void restoreDownloadItem(DownloadableItem item, int position) {
         itemsList.add(position, item);
         notifyItemInserted(position);
-        DownloadItemHelper.saveDownloadItems(itemsList);
+        DownloadItemHelper.saveDownloadItems(mPrefs,itemsList);
     }
 
     DownloadableItem findItem(String bookId) {
@@ -219,7 +215,7 @@ public class ItemListAdapter extends RecyclerView.Adapter implements
         if (itemDetailsViewHolder == null) {
             if (downloadableItem.getBookDownloadPercent() == Constants.DOWNLOAD_COMPLETE_PERCENT) {
                 downloadableItem.setDownloadingStatus(DownloadingStatus.DOWNLOADED);
-                onDownloadComplete(downloadableItem);
+                //onDownloadComplete(downloadableItem);
             }
             return;
         }

@@ -20,36 +20,27 @@ import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class DownloadItemHelper {
 
-    public static ArrayList<DownloadableItem> loadDownloadItems() {
-        String downloadStatusFile = ApplicationHelper.booksFolder + "/download.json";
+    public static ArrayList<DownloadableItem> loadDownloadItems(SharedPreferences mPrefs) {
         Gson gson = new Gson();
-        try {
-            Type listType = new TypeToken<ArrayList<DownloadableItem>>() {}.getType();
-            ArrayList<DownloadableItem> downloadItems = gson.fromJson(new FileReader(downloadStatusFile), listType);
-            if(downloadItems==null){
-                return new ArrayList<DownloadableItem>();
-            }
-            return  downloadItems;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return new ArrayList<DownloadableItem>();
+        String json = mPrefs.getString("downloadItems", "");
+
+        Type listType = new TypeToken<ArrayList<DownloadableItem>>() {}.getType();
+        ArrayList<DownloadableItem> downloadItems = gson.fromJson(json, listType);
+        if(downloadItems==null){
+            downloadItems = new ArrayList<DownloadableItem>();
         }
+        return downloadItems;
     }
 
-    public static void saveDownloadItems(ArrayList<DownloadableItem> downloadItems){
-        try {
-            String downloadStatusFile = ApplicationHelper.booksFolder + "/download.json";
-            FileWriter writer = new FileWriter(downloadStatusFile);
-
-            Gson objGson = new GsonBuilder().setPrettyPrinting().create();
-            objGson.toJson(downloadItems,writer);
-            writer.flush();
-            writer.close();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+    public static void saveDownloadItems(SharedPreferences mPrefs, ArrayList<DownloadableItem> downloadItems){
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(downloadItems); // myObject - instance of MyObject
+        prefsEditor.putString("downloadItems", json);
+        prefsEditor.commit();
     }
 }

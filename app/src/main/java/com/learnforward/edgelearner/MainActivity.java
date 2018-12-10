@@ -49,6 +49,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView itemsListView ;
     private ItemListAdapter itemListAdapter;
     private ArrayList<DownloadableItem> downloadableItems;
+    SharedPreferences mPrefs;
 
     private boolean cameraPermission=false,writePermission=false;
     @Override
@@ -80,8 +82,8 @@ public class MainActivity extends AppCompatActivity
         if (actionBar != null) {
             actionBar.hide();
         }
-
-        downloadableItems = DownloadItemHelper.loadDownloadItems();
+        mPrefs = getSharedPreferences("pref",MODE_PRIVATE);
+        downloadableItems = DownloadItemHelper.loadDownloadItems(mPrefs);
 
         itemListAdapter = new ItemListAdapter(this,
                 downloadableItems,
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DownloadItemHelper.saveDownloadItems(itemListAdapter.getDownloadItems());
+        DownloadItemHelper.saveDownloadItems(mPrefs, itemListAdapter.getDownloadItems());
     }
 
     @Override
@@ -191,28 +193,6 @@ public class MainActivity extends AppCompatActivity
                 downloadableItem.setBookDownloadUrl(bookUrl);
 
                 itemListAdapter.addDownload(downloadableItem);
-                //itemListAdapter.onDownloadStarted(downloadableItem);
-//                final ProgressDialog dialog = new ProgressDialog(this);
-//                dialog.setMessage("Searching book...");
-//                dialog.setCancelable(false);
-//                dialog.show();
-//                DocumentReference docRef = db.collection("books").document(bookCode);
-//                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        if (dialog.isShowing()) {
-//                            dialog.dismiss();
-//                        }
-//                        if (task.isSuccessful()) {
-//                            bookDetails = task.getResult().toObject(BookDetails.class);
-//
-//
-//
-//                        } else {
-//                            Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
-//                        }
-//                    }
-//                });
             }
             else{
                 Snackbar.make(itemsListView, "This book is not available", Snackbar.LENGTH_LONG).show();
@@ -255,20 +235,30 @@ public class MainActivity extends AppCompatActivity
         if (viewHolder instanceof ItemDetailsViewHolder) {
             final DownloadableItem  deletedItem = downloadableItems.get(viewHolder.getAdapterPosition());
             final int deletedIndex = viewHolder.getAdapterPosition();
-
-            itemListAdapter.removeDownloadItem(viewHolder.getAdapterPosition());
-
-            Snackbar snackbar = Snackbar
-                    .make(itemsListView, deletedItem.getBookName()+ " removed from Library!", Snackbar.LENGTH_LONG);
-            snackbar.setAction("UNDO", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    itemListAdapter.restoreDownloadItem(deletedItem, deletedIndex);
-                }
-            });
-            snackbar.setActionTextColor(Color.YELLOW);
-            snackbar.show();
+            itemListAdapter.removeDownloadItem(deletedIndex);
+            new android.support.v7.app.AlertDialog.Builder(this)
+                    .setTitle("Delete")
+                    .setMessage("Do you want to Delete ?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            //delete file
+                            File dir = new File(deletedItem.getBookPath());
+                            try {
+                                if(dir.exists()) {
+                                    FileUtils.deleteDirectory(dir);
+                                    Log.i(TAG,"Dir Removed");
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            itemListAdapter.restoreDownloadItem(deletedItem,deletedIndex);
+                        }
+                    }).show();
         }
     }
 
@@ -288,6 +278,10 @@ public class MainActivity extends AppCompatActivity
         else{
             cameraPermission=true;
         }
+        if(writePermission && cameraPermission){
+            //test code
+            //downloadBook("10000","http://learnforward.in/for_android_app/21165.zip");
+        }
     }
 
     private void requestPermissions() {
@@ -301,5 +295,17 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             ActivityCompat.requestPermissions(this, permissions, HANDLE_PERM);
         }
+    }
+
+    private void downloadBook(String bookId,String bookUrl){
+        DownloadableItem downloadableItem = new DownloadableItem();
+        downloadableItem.setId(String.valueOf(downloadableItems.size() + 1));
+        downloadableItem.setBookId(bookId);
+        downloadableItem.setDownloadingStatus(DownloadingStatus.NOT_DOWNLOADED);
+        downloadableItem.setBookName("Processing Book...");
+        downloadableItem.setPages("");
+        downloadableItem.setBookDownloadUrl(bookUrl);
+
+        itemListAdapter.addDownload(downloadableItem);
     }
 }

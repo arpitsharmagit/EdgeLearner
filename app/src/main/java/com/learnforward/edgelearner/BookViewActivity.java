@@ -2,6 +2,7 @@ package com.learnforward.edgelearner;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -24,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -40,7 +41,6 @@ import com.takusemba.spotlight.Spotlight;
 import com.takusemba.spotlight.shape.Circle;
 import com.takusemba.spotlight.target.SimpleTarget;
 
-import org.apache.commons.io.FileUtils;
 import org.xdty.preference.colorpicker.ColorPickerDialog;
 import org.xdty.preference.colorpicker.ColorPickerSwatch;
 
@@ -55,10 +55,10 @@ import java.util.ArrayList;
 public class BookViewActivity extends AppCompatActivity {
 
     //Bottom toolbar buttons
-    ImageButton btnColor,btnLineSize,btnPen,btnRectangle,btnErase,btnRemove;
+    ImageButton btnColor, btnLineSize, btnPen, btnRectangle, btnErase, btnRemove;
 
     //Top toolbar buttons
-    ImageButton btnIndex,btnBookmark,btnBookmarkList,btnEditText,btnGoto,btnZoom,btnHelp;
+    ImageButton btnIndex, btnBookmark, btnBookmarkList, btnEditText, btnGoto, btnZoom, btnHelp;
 
     //Drawing View
     DrawingView drawingView;
@@ -70,27 +70,27 @@ public class BookViewActivity extends AppCompatActivity {
 
     ImageSwitcher slider;
     TextView bookPage;
-    ImageView btnAudio,btnActivity;
-    ImageButton btnBack,btnPlay;
+    ImageView btnAudio, btnActivity;
+    ImageButton btnBack, btnPlay;
     LinearLayout playLayout;
     SeekBar seekBar;
     Spotlight spotlight;
 
     //color
-    int transparent,grey;
+    int transparent, grey;
 
     Book book;
 
     String bookPath;
-    int currPage =0;
-    float x1,x2;
+    int currPage = 0;
+    float x1, x2;
 
     MediaPlayer mp;
     private Handler mHandler;
     private Runnable mRunnable;
-    boolean isPlaying =false,isAudioVisible=false,isBookmarked=false,isZoom=false,isComment=false,isSpotlight=false;
+    boolean isPlaying = false, isAudioVisible = false, isBookmarked = false, isZoom = false, isComment = false, isSpotlight = false;
 
-    boolean isPaintFreeHand=false,isPaintBox=false,isPaintText=false;
+    boolean isPaintFreeHand = false, isPaintBox = false, isPaintText = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +103,7 @@ public class BookViewActivity extends AppCompatActivity {
         String bookId = intent.getStringExtra("bookId");
 
         book = getBook(bookId);
-        if(book == null){
+        if (book == null) {
             finish();
         }
 
@@ -115,19 +115,20 @@ public class BookViewActivity extends AppCompatActivity {
         btnBookmark = findViewById(R.id.btn_bookmark);
         btnBookmarkList = findViewById(R.id.btn_bookmark_list);
         btnEditText = findViewById(R.id.btn_text);
-        btnGoto=findViewById(R.id.btn_goto);
+        btnGoto = findViewById(R.id.btn_goto);
         btnZoom = findViewById(R.id.btn_zoom);
         btnHelp = findViewById(R.id.btn_help);
         drawingView = findViewById(R.id.draw_overlay);
         bindTopToolbar();
 
         //bottom toolbar
-        btnColor=findViewById(R.id.btn_color);
+        btnColor = findViewById(R.id.btn_color);
         btnLineSize = findViewById(R.id.btn_linesize);
         btnPen = findViewById(R.id.btn_pen);
-        btnRectangle= findViewById(R.id.btn_rectangle);
+        btnRectangle = findViewById(R.id.btn_rectangle);
         btnErase = findViewById(R.id.btn_erase);
         btnRemove = findViewById(R.id.btn_remove);
+        btnRemove.setVisibility(View.GONE);
         bindBottomToolbar();
 
         //defaults
@@ -147,15 +148,14 @@ public class BookViewActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isPlaying){
+                if (isPlaying) {
                     btnPlay.setImageResource(R.drawable.ic_play);
                     pause();
-                    isPlaying=false;
-                }
-                else{
+                    isPlaying = false;
+                } else {
                     btnPlay.setImageResource(R.drawable.ic_pause);
                     play();
-                    isPlaying=true;
+                    isPlaying = true;
                 }
             }
         });
@@ -169,7 +169,7 @@ public class BookViewActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(mp!=null && fromUser) {
+                if (mp != null && fromUser) {
                     seek(progress);
                 }
             }
@@ -211,7 +211,7 @@ public class BookViewActivity extends AppCompatActivity {
                             //Right to left
                             slideToLeft();
 
-                        }else if(deltaX >50.0f){
+                        } else if (deltaX > 50.0f) {
                             //left to Right
                             slideToRight();
                         }
@@ -222,39 +222,38 @@ public class BookViewActivity extends AppCompatActivity {
         });
 
         btnAudio = findViewById(R.id.btnAudio);
-        btnAudio.setImageBitmap(Utilities.loadImage(bookPath+"/extra/"+book.getSoundImg()));
+        btnAudio.setImageBitmap(Utilities.loadImage(bookPath + "/extra/" + book.getSoundImg()));
         btnAudio.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
-                    if(isAudioVisible){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (isAudioVisible) {
                         playLayout.setVisibility(View.GONE);
-                        isAudioVisible=false;
+                        isAudioVisible = false;
                         pause();
-                    }
-                    else {
+                    } else {
                         Uri myUri = Uri.fromFile(new File(String.valueOf(btnAudio.getTag())));
                         initMediaPlayer(myUri);
                         btnPlay.setImageResource(R.drawable.ic_pause);
                         play();
                         playLayout.setVisibility(View.VISIBLE);
-                        isAudioVisible=true;
-                        isPlaying=true;
+                        isAudioVisible = true;
+                        isPlaying = true;
                     }
                 }
                 return false;
             }
         });
 
-        btnActivity =findViewById(R.id.btnActivity);
-        btnActivity.setImageBitmap(Utilities.loadImage(bookPath+"/extra/"+book.getActivityImg()));
+        btnActivity = findViewById(R.id.btnActivity);
+        btnActivity.setImageBitmap(Utilities.loadImage(bookPath + "/extra/" + book.getActivityImg()));
         btnActivity.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     //check activity type
                     Intent intent = new Intent(BookViewActivity.this, McqActivity.class);
-                    intent.putExtra("activity",btnActivity.getTag().toString());
+                    intent.putExtra("activity", btnActivity.getTag().toString());
                     startActivity(intent);
                 }
                 return false;
@@ -278,39 +277,37 @@ public class BookViewActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mp!=null){
+        if (mp != null) {
             mp.release();
             mp = null;
-            if(mHandler!=null){
+            if (mHandler != null) {
                 mHandler.removeCallbacks(mRunnable);
             }
         }
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if(isSpotlight) {
+    public void onBackPressed() {
+        if (isSpotlight) {
             spotlight.closeSpotlight();
-        }
-        else{
+        } else {
             super.onBackPressed();
         }
     }
-    void initializeBook(){
+
+    void initializeBook() {
         currPage = 0;
         Bookmark bookmark = new Bookmark();
-        bookmark.setPageNo(currPage+1);
-        if(bookmarks!=null && contains(bookmarks,bookmark.getPageNo())){
-            isBookmarked=true;
+        bookmark.setPageNo(currPage + 1);
+        if (bookmarks != null && contains(bookmarks, bookmark.getPageNo())) {
+            isBookmarked = true;
             btnBookmark.setBackgroundColor(grey);
-        }
-        else{
-            isBookmarked=false;
+        } else {
+            isBookmarked = false;
             btnBookmark.setBackgroundColor(transparent);
         }
         String page = book.getPages()[currPage];
-        bookPage.setText((currPage+1) +"/"+book.getPages().length);
+        bookPage.setText((currPage + 1) + "/" + book.getPages().length);
         StringBuilder builder = new StringBuilder();
         builder.append(bookPath).append("/pages/").append(page).append(".jpg");
         slider.setImageURI(Uri.fromFile(new File(builder.toString())));
@@ -319,32 +316,32 @@ public class BookViewActivity extends AppCompatActivity {
         showSpeechButton();
         showActivityButton();
     }
-    void slideToLeft(){
+
+    void slideToLeft() {
         currPage++;
         Bookmark bookmark = new Bookmark();
-        bookmark.setPageNo(currPage+1);
-        if(bookmarks!=null && contains(bookmarks,bookmark.getPageNo())){
-            isBookmarked=true;
+        bookmark.setPageNo(currPage + 1);
+        if (bookmarks != null && contains(bookmarks, bookmark.getPageNo())) {
+            isBookmarked = true;
             btnBookmark.setBackgroundColor(grey);
-        }
-        else{
-            isBookmarked=false;
+        } else {
+            isBookmarked = false;
             btnBookmark.setBackgroundColor(transparent);
         }
         //set image and text
-        if(currPage == book.getPages().length ){
-            currPage = book.getPages().length-1;
+        if (currPage == book.getPages().length) {
+            currPage = book.getPages().length - 1;
             return;
         }
         String page = book.getPages()[currPage];
-        bookPage.setText((currPage+1) +"/"+book.getPages().length);
+        bookPage.setText((currPage + 1) + "/" + book.getPages().length);
         StringBuilder builder = new StringBuilder();
         builder.append(bookPath).append("/pages/").append(page).append(".jpg");
-        slider.setInAnimation(this,R.anim.slide_in_right);
-        slider.setOutAnimation(this,R.anim.slide_out_left);
+        slider.setInAnimation(this, R.anim.slide_in_right);
+        slider.setOutAnimation(this, R.anim.slide_out_left);
         slider.setImageURI(Uri.fromFile(new File(builder.toString())));
 
-        if(mp!=null) {
+        if (mp != null) {
             mp.pause();
             playLayout.setVisibility(View.GONE);
         }
@@ -355,31 +352,31 @@ public class BookViewActivity extends AppCompatActivity {
         showActivityButton();
 
     }
-    void slideToRight(){
+
+    void slideToRight() {
         currPage--;
         Bookmark bookmark = new Bookmark();
-        bookmark.setPageNo(currPage+1);
-        if(bookmarks!=null && contains(bookmarks,bookmark.getPageNo())){
-            isBookmarked=true;
+        bookmark.setPageNo(currPage + 1);
+        if (bookmarks != null && contains(bookmarks, bookmark.getPageNo())) {
+            isBookmarked = true;
             btnBookmark.setBackgroundColor(grey);
-        }
-        else{
-            isBookmarked=false;
+        } else {
+            isBookmarked = false;
             btnBookmark.setBackgroundColor(transparent);
         }
-        if(currPage < 0){
-            currPage=0;
+        if (currPage < 0) {
+            currPage = 0;
             return;
         }
         String page = book.getPages()[currPage];
-        bookPage.setText((currPage+1) +"/"+book.getPages().length);
+        bookPage.setText((currPage + 1) + "/" + book.getPages().length);
         StringBuilder builder = new StringBuilder();
         builder.append(bookPath).append("/pages/").append(page).append(".jpg");
-        slider.setInAnimation(this,R.anim.slide_in_left);
-        slider.setOutAnimation(this,R.anim.slide_out_right);
+        slider.setInAnimation(this, R.anim.slide_in_left);
+        slider.setOutAnimation(this, R.anim.slide_out_right);
         slider.setImageURI(Uri.fromFile(new File(builder.toString())));
 
-        if(mp!=null) {
+        if (mp != null) {
             mp.pause();
             playLayout.setVisibility(View.GONE);
         }
@@ -389,62 +386,67 @@ public class BookViewActivity extends AppCompatActivity {
         //set activity button
         showActivityButton();
     }
-    void showSpeechButton(){
+
+    void showSpeechButton() {
         String page = book.getPages()[currPage];
         StringBuilder builder = new StringBuilder();
         builder.append(bookPath).append("/audio/").append(page).append(".mp3");
         String audioPath = builder.toString();
         File audio = new File(audioPath);
-        if(audio.exists()){
+        if (audio.exists()) {
             btnAudio.setVisibility(View.VISIBLE);
             btnAudio.setTag(builder.toString());
-        }
-        else{
+        } else {
             btnAudio.setVisibility(View.GONE);
         }
     }
-    void showActivityButton(){
+
+    void showActivityButton() {
         String page = book.getPages()[currPage];
         StringBuilder builder = new StringBuilder();
         builder.append(bookPath).append("/activities/").append(page).append(".json");
         String actPath = builder.toString();
         File activity = new File(actPath);
-        if(activity.exists()){
+        if (activity.exists()) {
             btnActivity.setVisibility(View.VISIBLE);
             btnActivity.setTag(builder.toString());
-        }
-        else{
+        } else {
             btnActivity.setVisibility(View.GONE);
         }
     }
-    Book getBook(String bookId){
-        Gson gson =new Gson();
-        bookPath = ApplicationHelper.booksFolder+"/"+bookId;
+
+    Book getBook(String bookId) {
+        Gson gson = new Gson();
+        bookPath = ApplicationHelper.booksFolder + "/" + bookId;
         try {
-            return gson.fromJson(new FileReader(bookPath+"/book.json"),Book.class);
+            return gson.fromJson(new FileReader(bookPath + "/book.json"), Book.class);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
     }
-    void play(){
-        if(mp!=null){
+
+    void play() {
+        if (mp != null) {
             mp.start();
         }
     }
-    void seek(int ms){
+
+    void seek(int ms) {
         mp.seekTo(ms);
     }
-    void pause(){
-        if(mp!=null){
+
+    void pause() {
+        if (mp != null) {
             mp.pause();
         }
     }
-    void initMediaPlayer(Uri uri){
-        if(mp!=null){
+
+    void initMediaPlayer(Uri uri) {
+        if (mp != null) {
             mp.release();
             mp = null;
-            if(mHandler!=null){
+            if (mHandler != null) {
                 mHandler.removeCallbacks(mRunnable);
             }
         }
@@ -457,7 +459,7 @@ public class BookViewActivity extends AppCompatActivity {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     playLayout.setVisibility(View.GONE);
-                    if(mHandler!=null){
+                    if (mHandler != null) {
                         mHandler.removeCallbacks(mRunnable);
                     }
                 }
@@ -471,14 +473,14 @@ public class BookViewActivity extends AppCompatActivity {
                     mRunnable = new Runnable() {
                         @Override
                         public void run() {
-                            if(mp!=null){
+                            if (mp != null) {
                                 int mCurrentPosition = mp.getCurrentPosition(); // In milliseconds
                                 seekBar.setProgress(mCurrentPosition);
                             }
-                            mHandler.postDelayed(mRunnable,1000);
+                            mHandler.postDelayed(mRunnable, 1000);
                         }
                     };
-                    mHandler.postDelayed(mRunnable,1000);
+                    mHandler.postDelayed(mRunnable, 1000);
 
                     mp.start();
                 }
@@ -490,8 +492,9 @@ public class BookViewActivity extends AppCompatActivity {
         }
 
     }
-    void gotoPage(int pageNo){
-        if(pageNo>-1 && pageNo <book.getPages().length) {
+
+    void gotoPage(int pageNo) {
+        if (pageNo > -1 && pageNo < book.getPages().length) {
             currPage = pageNo;
             String page = book.getPages()[currPage];
             bookPage.setText((currPage + 1) + "/" + book.getPages().length);
@@ -504,12 +507,16 @@ public class BookViewActivity extends AppCompatActivity {
             showActivityButton();
         }
     }
-    void bindBottomToolbar(){
+
+    void bindBottomToolbar() {
         //ImageButton btnColor,btnLineSize,btnPen,btnRectangle,btnErase,btnRemove;
 
         btnPen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isDrawingSaved()){
+                    return;
+                }
                 String page = book.getPages()[currPage];
                 StringBuilder builder = new StringBuilder();
                 builder.append(bookPath)
@@ -518,28 +525,29 @@ public class BookViewActivity extends AppCompatActivity {
                         .append("paint")
                         .append("freehand")
                         .append(".png");
-                if(isPaintFreeHand){
+                if (isPaintFreeHand) {
                     drawingView.savePaint(builder.toString());
                     drawingView.clear();
                     btnPen.setBackgroundColor(transparent);
                     btnErase.setBackgroundColor(transparent);
                     drawingView.setVisibility(View.GONE);
-                    isPaintFreeHand=false;
-                }
-                else {
-                    drawingView.clear();
+                    isPaintFreeHand = false;
+                } else {
                     drawingView.setDrawType(DrawingView.ShapeFreehand);
                     drawingView.setBitmap(builder.toString());
                     drawingView.setVisibility(View.VISIBLE);
                     btnPen.setBackgroundColor(grey);
                     btnErase.setBackgroundColor(grey);
-                    isPaintFreeHand=true;
+                    isPaintFreeHand = true;
                 }
             }
         });
         btnRectangle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isDrawingSaved()){
+                    return;
+                }
                 String page = book.getPages()[currPage];
                 StringBuilder builder = new StringBuilder();
                 builder.append(bookPath)
@@ -548,22 +556,20 @@ public class BookViewActivity extends AppCompatActivity {
                         .append("paint")
                         .append("box")
                         .append(".png");
-                if(isPaintBox){
+                if (isPaintBox) {
                     drawingView.savePaint(builder.toString());
                     drawingView.clear();
                     btnRectangle.setBackgroundColor(transparent);
                     btnErase.setBackgroundColor(transparent);
                     drawingView.setVisibility(View.GONE);
-                    isPaintBox=false;
-                }
-                else {
-                    drawingView.clear();
+                    isPaintBox = false;
+                } else {
                     drawingView.setDrawType(DrawingView.ShapeRect);
                     drawingView.setBitmap(builder.toString());
                     drawingView.setVisibility(View.VISIBLE);
                     btnRectangle.setBackgroundColor(grey);
                     btnErase.setBackgroundColor(grey);
-                    isPaintBox=true;
+                    isPaintBox = true;
                 }
             }
         });
@@ -573,7 +579,7 @@ public class BookViewActivity extends AppCompatActivity {
                 String page = book.getPages()[currPage];
                 StringBuilder builder = new StringBuilder();
                 drawingView.setOnTouchListener(null);
-                if(isPaintText){
+                if (isPaintText) {
                     builder.append(bookPath)
                             .append("/pages/")
                             .append(page)
@@ -585,8 +591,10 @@ public class BookViewActivity extends AppCompatActivity {
                         fdelete.delete();
                     }
                     btnEditText.setBackgroundColor(transparent);
+                    isPaintText = false;
+                    drawingView.clear();
                 }
-                if(isPaintBox){
+                if (isPaintBox) {
                     builder.append(bookPath)
                             .append("/pages/")
                             .append(page)
@@ -598,8 +606,10 @@ public class BookViewActivity extends AppCompatActivity {
                         fdelete.delete();
                     }
                     btnRectangle.setBackgroundColor(transparent);
+                    isPaintBox = false;
+                    drawingView.clear();
                 }
-                if(isPaintFreeHand){
+                if (isPaintFreeHand) {
                     builder.append(bookPath)
                             .append("/pages/")
                             .append(page)
@@ -611,8 +621,9 @@ public class BookViewActivity extends AppCompatActivity {
                         fdelete.delete();
                     }
                     btnPen.setBackgroundColor(transparent);
+                    isPaintFreeHand = false;
+                    drawingView.clear();
                 }
-                drawingView.clear();
                 drawingView.setVisibility(View.GONE);
                 btnErase.setBackgroundColor(transparent);
             }
@@ -700,8 +711,8 @@ public class BookViewActivity extends AppCompatActivity {
                 brushDialog.setContentView(R.layout.brush_chooser);
                 brushDialog.setCancelable(false);
                 //listen for clicks on size buttons
-                ImageButton smallBtn = (ImageButton)brushDialog.findViewById(R.id.small_brush);
-                smallBtn.setOnClickListener(new View.OnClickListener(){
+                ImageButton smallBtn = (ImageButton) brushDialog.findViewById(R.id.small_brush);
+                smallBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         int strokeSize = getResources().getInteger(R.integer.small_size);
@@ -710,8 +721,8 @@ public class BookViewActivity extends AppCompatActivity {
                         btnLineSize.setBackgroundColor(transparent);
                     }
                 });
-                ImageButton mediumBtn = (ImageButton)brushDialog.findViewById(R.id.medium_brush);
-                mediumBtn.setOnClickListener(new View.OnClickListener(){
+                ImageButton mediumBtn = (ImageButton) brushDialog.findViewById(R.id.medium_brush);
+                mediumBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         int strokeSize = getResources().getInteger(R.integer.medium_size);
@@ -720,8 +731,8 @@ public class BookViewActivity extends AppCompatActivity {
                         btnLineSize.setBackgroundColor(transparent);
                     }
                 });
-                ImageButton largeBtn = (ImageButton)brushDialog.findViewById(R.id.large_brush);
-                largeBtn.setOnClickListener(new View.OnClickListener(){
+                ImageButton largeBtn = (ImageButton) brushDialog.findViewById(R.id.large_brush);
+                largeBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         int strokeSize = getResources().getInteger(R.integer.large_size);
@@ -736,7 +747,8 @@ public class BookViewActivity extends AppCompatActivity {
             }
         });
     }
-    void bindTopToolbar(){
+
+    void bindTopToolbar() {
         //ImageButton btnIndex,btnBookmark,btnBookmarkList,btnEditText,btnGoto,btnZoom,btnHelp;
         btnHelp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -747,9 +759,12 @@ public class BookViewActivity extends AppCompatActivity {
         btnZoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isZoom){
+                if(!isDrawingSaved()){
+                    return;
+                }
+                if (!isZoom) {
                     String page = book.getPages()[currPage];
-                    bookPage.setText((currPage+1) +"/"+book.getPages().length);
+                    bookPage.setText((currPage + 1) + "/" + book.getPages().length);
                     StringBuilder builder = new StringBuilder();
                     builder.append(bookPath).append("/pages/").append(page).append(".jpg");
 
@@ -767,15 +782,14 @@ public class BookViewActivity extends AppCompatActivity {
 
                     slider.setVisibility(View.GONE);
                     btnZoom.setBackgroundColor(grey);
-                    isZoom=true;
-                }
-                else {
+                    isZoom = true;
+                } else {
                     FrameLayout frameLayout = findViewById(R.id.content);
                     frameLayout.removeView(frameLayout.findViewWithTag("zoomView"));
 
                     slider.setVisibility(View.VISIBLE);
                     btnZoom.setBackgroundColor(transparent);
-                    isZoom=false;
+                    isZoom = false;
                 }
             }
         });
@@ -783,6 +797,9 @@ public class BookViewActivity extends AppCompatActivity {
         btnEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isDrawingSaved()){
+                    return;
+                }
                 String page = book.getPages()[currPage];
                 StringBuilder builder = new StringBuilder();
                 builder.append(bookPath)
@@ -791,16 +808,19 @@ public class BookViewActivity extends AppCompatActivity {
                         .append("paint")
                         .append("text")
                         .append(".png");
-                if(isPaintText){
+                isPaintFreeHand = false;
+                isPaintBox = false;
+                btnPen.setBackgroundColor(transparent);
+                btnRectangle.setBackgroundColor(transparent);
+                if (isPaintText) {
                     drawingView.savePaint(builder.toString());
                     drawingView.setVisibility(View.GONE);
                     drawingView.clear();
                     btnErase.setBackgroundColor(transparent);
                     btnEditText.setBackgroundColor(transparent);
                     drawingView.setOnTouchListener(null);
-                    isPaintText =false;
-                }
-                else{
+                    isPaintText = false;
+                } else {
                     final Dialog commentDialog = new Dialog(BookViewActivity.this);
                     commentDialog.setTitle("Comment");
                     commentDialog.setContentView(R.layout.view_edittext);
@@ -836,7 +856,7 @@ public class BookViewActivity extends AppCompatActivity {
                     btnErase.setBackgroundColor(grey);
                     btnEditText.setBackgroundColor(grey);
                     drawingView.setVisibility(View.VISIBLE);
-                    isPaintText =true;
+                    isPaintText = true;
                 }
             }
         });
@@ -844,30 +864,35 @@ public class BookViewActivity extends AppCompatActivity {
         btnBookmarkList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isDrawingSaved()){
+                    return;
+                }
                 Intent intent = new Intent(BookViewActivity.this, BookmarkList.class);
-                intent.putExtra("bookId",book.getId());
+                intent.putExtra("bookId", book.getId());
                 startActivityForResult(intent, 2);
             }
         });
         btnBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(bookmarks==null){
-                    bookmarks=new ArrayList<Bookmark>();
+                if(!isDrawingSaved()){
+                    return;
                 }
-                Bookmark bookmark =new Bookmark();
-                bookmark.setPageNo(currPage+1);
-                if(isBookmarked){
-                    removeIfContains(bookmarks,bookmark.getPageNo());
+                if (bookmarks == null) {
+                    bookmarks = new ArrayList<Bookmark>();
+                }
+                Bookmark bookmark = new Bookmark();
+                bookmark.setPageNo(currPage + 1);
+                if (isBookmarked) {
+                    removeIfContains(bookmarks, bookmark.getPageNo());
                     btnBookmark.setBackgroundColor(transparent);
-                    isBookmarked=false;
-                    Snackbar.make(slider,"Bookmark removed",Snackbar.LENGTH_SHORT).show();
-                }
-                else {
+                    isBookmarked = false;
+                    Snackbar.make(slider, "Bookmark removed", Snackbar.LENGTH_SHORT).show();
+                } else {
                     bookmarks.add(bookmark);
                     btnBookmark.setBackgroundColor(grey);
-                    isBookmarked=true;
-                    Snackbar.make(slider,"Bookmark added",Snackbar.LENGTH_SHORT).show();
+                    isBookmarked = true;
+                    Snackbar.make(slider, "Bookmark added", Snackbar.LENGTH_SHORT).show();
                 }
                 saveBook();
             }
@@ -875,28 +900,33 @@ public class BookViewActivity extends AppCompatActivity {
         btnIndex.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isDrawingSaved()){
+                    return;
+                }
                 Intent intent = new Intent(BookViewActivity.this, ChapterActivity.class);
-                intent.putExtra("bookId",book.getId());
+                intent.putExtra("bookId", book.getId());
                 startActivityForResult(intent, 1);
             }
         });
         btnGoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isDrawingSaved()){
+                    return;
+                }
                 final Dialog gotoDialog = new Dialog(BookViewActivity.this);
                 gotoDialog.setTitle("Go to");
                 gotoDialog.setContentView(R.layout.view_goto);
                 //listen for clicks on size buttons
                 Button btnGoto = gotoDialog.findViewById(R.id.btnGoto);
-                btnGoto.setOnClickListener(new View.OnClickListener(){
+                btnGoto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         EditText edtPageNo = gotoDialog.findViewById(R.id.txtPage);
-                        int pageNo =-1;
+                        int pageNo = -1;
                         try {
-                             pageNo = Integer.parseInt(edtPageNo.getText().toString());
-                        }
-                        catch (NumberFormatException ex){
+                            pageNo = Integer.parseInt(edtPageNo.getText().toString());
+                        } catch (NumberFormatException ex) {
 
                         }
                         pageNo--;
@@ -907,13 +937,12 @@ public class BookViewActivity extends AppCompatActivity {
 
 
                         Bookmark bookmark = new Bookmark();
-                        bookmark.setPageNo(currPage+1);
-                        if(bookmarks!=null && contains(bookmarks,bookmark.getPageNo())){
-                            isBookmarked=true;
+                        bookmark.setPageNo(currPage + 1);
+                        if (bookmarks != null && contains(bookmarks, bookmark.getPageNo())) {
+                            isBookmarked = true;
                             btnBookmark.setBackgroundColor(grey);
-                        }
-                        else{
-                            isBookmarked=false;
+                        } else {
+                            isBookmarked = false;
                             btnBookmark.setBackgroundColor(transparent);
                         }
                         gotoDialog.dismiss();
@@ -924,34 +953,36 @@ public class BookViewActivity extends AppCompatActivity {
             }
         });
     }
+
     void loadBookmark() {
         Gson gson = new Gson();
         try {
-            Type listType = new TypeToken<ArrayList<Bookmark>>() {}.getType();
-            bookmarks = gson.fromJson(new FileReader(bookPath+"/bookmark.json"), listType);
+            Type listType = new TypeToken<ArrayList<Bookmark>>() {
+            }.getType();
+            bookmarks = gson.fromJson(new FileReader(bookPath + "/bookmark.json"), listType);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    void saveBook(){
+    void saveBook() {
         try {
-            FileWriter writer = new FileWriter(bookPath+"/bookmark.json");
+            FileWriter writer = new FileWriter(bookPath + "/bookmark.json");
 
             Gson objGson = new GsonBuilder().setPrettyPrinting().create();
-            objGson.toJson(bookmarks,writer);
+            objGson.toJson(bookmarks, writer);
             writer.flush();
             writer.close();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-             int pageNo = data.getIntExtra("page",-1);
+            int pageNo = data.getIntExtra("page", -1);
             pageNo--;
             gotoPage(pageNo);
             drawingView.setVisibility(View.GONE);
@@ -959,21 +990,20 @@ public class BookViewActivity extends AppCompatActivity {
             btnPen.setBackgroundColor(transparent);
 
             Bookmark bookmark = new Bookmark();
-            bookmark.setPageNo(currPage+1);
-            if(bookmarks!=null && contains(bookmarks,bookmark.getPageNo())){
-                isBookmarked=true;
+            bookmark.setPageNo(currPage + 1);
+            if (bookmarks != null && contains(bookmarks, bookmark.getPageNo())) {
+                isBookmarked = true;
                 btnBookmark.setBackgroundColor(grey);
-            }
-            else{
-                isBookmarked=false;
+            } else {
+                isBookmarked = false;
                 btnBookmark.setBackgroundColor(transparent);
             }
         }
         if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
             loadBookmark();
-            int pageNo = data.getIntExtra("page",-1);
-            if(pageNo == -1){
-                Snackbar.make(slider,"No Bookmarks",Snackbar.LENGTH_LONG).show();
+            int pageNo = data.getIntExtra("page", -1);
+            if (pageNo == -1) {
+                Snackbar.make(slider, "No Bookmarks", Snackbar.LENGTH_LONG).show();
             }
             pageNo--;
             gotoPage(pageNo);
@@ -982,38 +1012,39 @@ public class BookViewActivity extends AppCompatActivity {
             btnPen.setBackgroundColor(transparent);
 
             Bookmark bookmark = new Bookmark();
-            bookmark.setPageNo(currPage+1);
-            if(bookmarks!=null && contains(bookmarks,bookmark.getPageNo())){
-                isBookmarked=true;
+            bookmark.setPageNo(currPage + 1);
+            if (bookmarks != null && contains(bookmarks, bookmark.getPageNo())) {
+                isBookmarked = true;
                 btnBookmark.setBackgroundColor(grey);
-            }
-            else{
-                isBookmarked=false;
+            } else {
+                isBookmarked = false;
                 btnBookmark.setBackgroundColor(transparent);
             }
         }
     }
+
     void removeIfContains(ArrayList<Bookmark> list, int pageNo) {
-        Bookmark itemtoRemove=null;
+        Bookmark itemtoRemove = null;
         for (Bookmark item : list) {
-            if (item.getPageNo()==pageNo) {
+            if (item.getPageNo() == pageNo) {
                 itemtoRemove = item;
                 break;
             }
         }
         list.remove(itemtoRemove);
     }
+
     boolean contains(ArrayList<Bookmark> list, int pageNo) {
-        Bookmark itemtoRemove=null;
+        Bookmark itemtoRemove = null;
         for (Bookmark item : list) {
-            if (item.getPageNo()==pageNo) {
+            if (item.getPageNo() == pageNo) {
                 return true;
             }
         }
         return false;
     }
 
-    void startSpotLight(){
+    void startSpotLight() {
         SimpleTarget zoomTarget = new SimpleTarget.Builder(this)
                 .setTitle("Zoom")
                 .setDescription("Click here to zoom book page.")
@@ -1098,22 +1129,127 @@ public class BookViewActivity extends AppCompatActivity {
                 .setOverlayColor(R.color.black_overlay)
                 .setDuration(500L)
                 .setAnimation(new DecelerateInterpolator(2f))
-                .setTargets(zoomTarget,indexTarget,bookmarkTarget,bookmarkListTarget,
-                        commentTarget,gotoTarget,helpTarget,colorTarget,penSizeTarget,penTarget,
-                        highlightTarget,eraseTarget,removeTarget)
+                .setTargets(zoomTarget, indexTarget, bookmarkTarget, bookmarkListTarget,
+                        commentTarget, gotoTarget, helpTarget, colorTarget, penSizeTarget, penTarget,
+                        highlightTarget, eraseTarget, removeTarget)
                 .setClosedOnTouchedOutside(true)
-        .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
-            @Override
-            public void onStarted() {
-                isSpotlight =true;
-            }
+                .setOnSpotlightStateListener(new OnSpotlightStateChangedListener() {
+                    @Override
+                    public void onStarted() {
+                        isSpotlight = true;
+                    }
 
-            @Override
-            public void onEnded() {
-                isSpotlight =false;
-            }
-        });
+                    @Override
+                    public void onEnded() {
+                        isSpotlight = false;
+                    }
+                });
         spotlight.start();
 
+    }
+
+    private boolean isDrawingSaved() {
+        final String page = book.getPages()[currPage];
+        if (isPaintText) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Alert")
+                    .setMessage("Do you want to save ?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            StringBuilder builder = new StringBuilder();
+                            builder.append(bookPath)
+                                    .append("/pages/")
+                                    .append(page)
+                                    .append("paint")
+                                    .append("text")
+                                    .append(".png");
+                            drawingView.savePaint(builder.toString());
+                            drawingView.setVisibility(View.GONE);
+                            drawingView.clear();
+                            btnErase.setBackgroundColor(transparent);
+                            btnEditText.setBackgroundColor(transparent);
+                            drawingView.setOnTouchListener(null);
+                            isPaintText = false;
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Snackbar snackbar = Snackbar
+                                    .make(slider, "Please save or remove drawing to continue.", Snackbar.LENGTH_SHORT);
+                            snackbar.show();
+                        }
+                    }).show();
+            return false;
+
+        }
+
+        if (isPaintBox) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Alert")
+                    .setMessage("Do you want to save ?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            StringBuilder builder = new StringBuilder();
+                            drawingView.setOnTouchListener(null);
+                            builder.append(bookPath)
+                                    .append("/pages/")
+                                    .append(page)
+                                    .append("paint")
+                                    .append("box")
+                                    .append(".png");
+                            drawingView.savePaint(builder.toString());
+                            drawingView.clear();
+                            btnRectangle.setBackgroundColor(transparent);
+                            btnErase.setBackgroundColor(transparent);
+                            drawingView.setVisibility(View.GONE);
+                            isPaintBox = false;
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Snackbar snackbar = Snackbar
+                                    .make(slider, "Please save or remove drawing to continue.", Snackbar.LENGTH_SHORT);
+                            snackbar.show();
+                        }
+                    }).show();
+            return false;
+        }
+        if (isPaintFreeHand) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Alert")
+                    .setMessage("Do you want to save ?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            StringBuilder builder = new StringBuilder();
+                            builder.append(bookPath)
+                                    .append("/pages/")
+                                    .append(page)
+                                    .append("paint")
+                                    .append("freehand")
+                                    .append(".png");
+                            drawingView.savePaint(builder.toString());
+                            drawingView.clear();
+                            btnPen.setBackgroundColor(transparent);
+                            btnErase.setBackgroundColor(transparent);
+                            drawingView.setVisibility(View.GONE);
+                            isPaintFreeHand = false;
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Snackbar snackbar = Snackbar
+                                    .make(slider, "Please save or remove drawing to continue.", Snackbar.LENGTH_SHORT);
+                            snackbar.show();
+                        }
+                    }).show();
+            return false;
+        }
+        return true;
     }
 }
